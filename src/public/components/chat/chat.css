@@ -1,0 +1,14 @@
+.chat {
+  background: darkviolet;
+  height: 100%;
+  flex: 8;
+}
+
+.chat__text {
+  height: calc(100% - var(--header-height));
+}
+
+.chat__input {
+  background: white;
+  height: 54px;
+}

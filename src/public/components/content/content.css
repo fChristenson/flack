@@ -1,0 +1,10 @@
+.content {
+  background: steelblue;
+  height: calc(100% - 54px);
+  flex: 8;
+}
+
+.content__chat-container {
+  display: flex;
+  height: 100%;
+}

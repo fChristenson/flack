@@ -1,0 +1,20 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Roboto sans-serif;
+  display: flex;
+  height: 100vh;
+  min-width: 1024px;
+}
+
+:root {
+  --header-height: 54px;
+
+  --margin-s: 4px;
+  --margin-m: 8px;
+  --margin-l: 12px;
+}

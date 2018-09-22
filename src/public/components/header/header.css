@@ -1,0 +1,4 @@
+.header {
+  background: purple;
+  height: var(--header-height);
+}
