@@ -1,4 +1,27 @@
 .header {
-  background: purple;
+  background: var(--color-white);
   height: var(--header-height);
+  display: flex;
+  align-items: center;
+  padding: 0 calc(var(--margin-l) * 1);
+  justify-content: space-between;
+}
+
+.header__search {
+  cursor: pointer;
+  padding: var(--margin-s);
+  height: 34px;
+  min-width: 180px;
+  font-size: var(--font-size-s);
+  border-radius: 6px;
+  border: 1px solid var(--color-dark-gray);
+}
+
+.header__search::placeholder {
+  color: var(--color-gray);
+}
+
+.header__title {
+  text-align: center;
+  font-size: var(--font-size-m);
 }

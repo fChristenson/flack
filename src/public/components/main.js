@@ -1,1 +1,2 @@
 require("./sidebar");
+require("./header");
