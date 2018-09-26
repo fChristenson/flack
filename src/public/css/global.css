@@ -5,16 +5,23 @@
 }
 
 body {
-  font-family: Roboto sans-serif;
+  font-family: Roboto, sans-serif;
   display: flex;
   height: 100vh;
   min-width: 1024px;
 }
 
 :root {
+  --color-white: #fff;
+  --color-gray: #CAC4C9;
+  --color-brown: #4D394B;
+  --color-dark-brown: #3E313C;
+  --color-green: #4F9689;
   --header-height: 54px;
-
   --margin-s: 4px;
   --margin-m: 8px;
   --margin-l: 12px;
+  --font-size-s: 16px;
+  --font-size-m: 20px;
+  --font-size-l: 24px;
 }

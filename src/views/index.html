@@ -10,7 +10,19 @@
 </head>
 
 <body>
-  <aside class="sidebar"></aside>
+  <aside class="sidebar">
+    <h1 class="sidebar__header">Flack</h1>
+    <h2 class="sidebar__channels">
+      <label class="sidebar__channels-text" for="channels">Channels</label>
+      <button id="channels" data-js="channels" class="sidebar__plus-button"></button>
+    </h2>
+    <ul data-js="channels-list" class="sidebar__list"></ul>
+    <h2 class="sidebar__direct-messages">
+      <label class="sidebar__direct-messages-text" for="direct-message">Direct Messages</label>
+      <button data-js="direct-messages" id="direct-message" class="sidebar__plus-button"></button>
+    </h2>
+    <ul data-js="direct-messages-list" class="sidebar__list"></ul>
+  </aside>
   <main class="content">
     <header class="header"></header>
     <div class="content__chat-container">

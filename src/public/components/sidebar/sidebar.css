@@ -1,5 +1,132 @@
 .sidebar {
   flex: 2;
   height: 100%;
-  background: darkred;
+  background: var(--color-brown);
+}
+
+.sidebar__header {
+  margin: var(--margin-l) var(--margin-l) 0;
+}
+
+.sidebar__channels,
+.sidebar__direct-messages {
+  margin: var(--margin-l);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sidebar__times {
+  display: none;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--color-white);
+  font-size: var(--font-size-l);
+  margin-right: var(--margin-l);
+}
+
+.sidebar__li:hover .sidebar__times {
+  display: initial;
+}
+
+.sidebar__dot,
+.sidebar__hash {
+  margin-right: var(--margin-s);
+}
+
+.sidebar__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--color-green);
+  background: var(--color-green);
+  display: inline-block;
+}
+
+.sidebar__li--selected .sidebar__dot {
+  border: 2px solid var(--color-white);
+  background: var(--color-white);
+}
+
+.sidebar__channels-text,
+.sidebar__direct-messages-text,
+.sidebar__plus-button:before,
+.sidebar__li:hover,
+.sidebar__times,
+.sidebar__li--selected:hover {
+  cursor: pointer;
+}
+
+.sidebar__direct-message-li,
+.sidebar__li {
+  display: flex;
+  align-items: center;
+  min-height: 36px;
+  opacity: 0.64;
+}
+
+.sidebar__direct-message-li--selected,
+.sidebar__li--selected {
+  opacity: 1;
+  background: var(--color-green);
+}
+
+.sidebar__direct-message-link,
+.sidebar__link {
+  margin-left: var(--margin-l);
+  width: calc(100% - var(--margin-l));
+  height: 100%;
+  display: block;
+}
+
+.sidebar__direct-message-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sidebar__li--selected,
+.sidebar__li {
+  padding: var(--margin-s) 0;
+}
+
+.sidebar__li:hover {
+  background: var(--color-dark-brown);
+}
+
+.sidebar,
+.sidebar__plus-button {
+  color: var(--color-white);
+}
+
+.sidebar__channels-text,
+.sidebar__direct-messages-text {
+  opacity: 0.64;
+  font-weight: normal;
+  font-size: var(--font-size-m);
+}
+
+.sidebar__plus-button {
+  opacity: 0.64;
+  background: none;
+  border: none;
+  outline: none;
+}
+
+.sidebar__channels-text:hover,
+.sidebar__direct-messages-text:hover,
+.sidebar__plus-button:hover {
+  opacity: 1;
+}
+
+.sidebar__channels-text,
+.sidebar__direct-messages-text,
+.sidebar__plus-button:before {
+  transition: opacity 0.1s ease-out;
+}
+
+.sidebar__plus-button:before {
+  content: "\002B";
+  font-size: var(--font-size-l);
 }
