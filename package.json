@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node server.js",
+    "images:copy": "cp -r ./src/public/images ./dist/images",
     "server:watch": "npx nodemon ./server.js",
     "css:build": "npx postcss ./src/public/css/main.css -o ./dist/main.css",
     "css:watch": "npx postcss --watch ./src/public/css/main.css -o ./dist/main.css",
