@@ -56,4 +56,4 @@ const chatNode = createElement(chat);
 
 chatElement.parentNode.replaceChild(chatNode, chatElement);
 
-chatNode.scrollTop = chatNode.scrollHeight;
+chat.refs.text.scrollTop = chat.refs.text.scrollHeight;

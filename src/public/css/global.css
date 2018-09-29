@@ -27,4 +27,5 @@ body {
   --font-size-s: 16px;
   --font-size-m: 20px;
   --font-size-l: 24px;
+  --message-height: 0;
 }

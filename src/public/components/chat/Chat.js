@@ -1,5 +1,12 @@
 const Component = require("../component");
 const ChatMenu = require("./ChatMenu");
+const socketIO = require("socket.io-client");
+const socket = socketIO();
+
+const LINE_HEIGHT_IN_PIXELS = 14;
+const TEXT_AREA_MAX_HEIGHT = 200;
+const RETURN_KEY = 13;
+const BACKSPACE_KEY = 8;
 
 class Chat extends Component {
   constructor(props) {
@@ -9,6 +16,31 @@ class Chat extends Component {
     this.renderPosts = this.renderPosts.bind(this);
     this.openMoreActions = this.openMoreActions.bind(this);
     this.openThreadAction = this.openThreadAction.bind(this);
+    this.postMessage = this.postMessage.bind(this);
+  }
+
+  postMessage(event) {
+    event.preventDefault();
+    if (event.keyCode === RETURN_KEY && !event.shiftKey) {
+      const message = event.target.value;
+      event.target.value = "";
+      socket.emit("message", message);
+      document.body.style.setProperty("--message-height", 0);
+    } else if (event.keyCode === RETURN_KEY) {
+      const heightString = document.body.style.getPropertyValue(
+        "--message-height"
+      );
+      const height = parseInt(heightString || 0);
+      const newHeight = Math.min(
+        TEXT_AREA_MAX_HEIGHT,
+        height + LINE_HEIGHT_IN_PIXELS
+      );
+      document.body.style.setProperty("--message-height", newHeight);
+    } else if (
+      event.keyCode === BACKSPACE_KEY && event.target.value.length < 1
+    ) {
+      document.body.style.setProperty("--message-height", 0);
+    }
   }
 
   openThreadAction(event, postKey) {
@@ -45,10 +77,15 @@ class Chat extends Component {
   render() {
     return `
       <div class="chat__container">
-        <ul>
-          ${this.props.posts.map(this.renderPosts).join("")}
-        </ul>
-        <div class="chat__typing">Someone is typing...</div>
+        <div data-ref="text" class="chat__text-container">
+          <ul>
+            ${this.props.posts.map(this.renderPosts).join("")}
+          </ul>
+          <div class="chat__typing">Someone is typing...</div>
+        </div>
+        <div class="chat__input-container">
+          <textarea onkeyup="chat.postMessage(event)" class="chat__input" placeholder="Message"></textarea>
+        </div>
       </div>
     `;
   }
