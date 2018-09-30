@@ -1,5 +1,7 @@
 const Component = require("../component");
 const ChatMenu = require("./ChatMenu");
+const createElement = require("../../lib/createElement");
+const { OpenActionbar } = require("../actionbar/actionbarActions");
 const socketIO = require("socket.io-client");
 const socket = socketIO();
 
@@ -45,7 +47,9 @@ class Chat extends Component {
 
   openThreadAction(event, postKey) {
     event.preventDefault();
-    alert(postKey);
+    const title = "Thread";
+    const data = { title, component: createElement(window.thread) };
+    this.dispatch(OpenActionbar(data));
   }
 
   openMoreActions(event, postKey) {
