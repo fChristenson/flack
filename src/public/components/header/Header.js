@@ -24,9 +24,12 @@ class Header extends Component {
     return `
       <header class="header">
         <h1 class="header__title" data-ref="h1">${this.getStoreState().sidebar.selectedChannel.name}</h1>
-        <form onsubmit="header.onSearch(event)">
-          <input class="header__search" type="text" placeholder="Search" />
-        </form>
+        <div class="header__search-container">
+          <form onsubmit="header.onSearch(event)">
+            <input class="header__search" type="text" placeholder="Search" />
+          </form>
+          <a class="header__logout" href="/logout">Logout</a>
+        </div>
       </header>
     `;
   }

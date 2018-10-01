@@ -1,8 +1,8 @@
 const app = require("./src/app");
 const mongoose = require("mongoose");
+const config = require("./src/config");
 
-const url = process.env.MONGO_URL || "mongodb://localhost:27017/local";
-mongoose.connect(url, {
+mongoose.connect(config.url, {
   useNewUrlParser: true
 });
 

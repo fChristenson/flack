@@ -8,6 +8,15 @@
   border-bottom: 1px solid var(--color-dark-gray);
 }
 
+.header__search-container {
+  display: flex;
+  align-items: center;
+}
+
+.header__logout {
+  margin-left: var(--margin-l);
+}
+
 .header__search {
   cursor: pointer;
   padding: var(--margin-s);

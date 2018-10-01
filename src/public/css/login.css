@@ -1,0 +1,21 @@
+.login {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login__form-container {
+  text-align: center;
+}
+
+.login__form {
+  margin: var(--margin-m) 0;
+  text-align: center;
+  display: flex;
+  flex-flow: column;
+}
+
+.login__form-field {
+  margin: 0 0 var(--margin-m) 0;
+  padding: var(--margin-m);
+}

@@ -2,8 +2,8 @@ const createElement = require("../../lib/createElement");
 const ChannelsList = require("./ChannelsList");
 const DirectMessagesList = require("./DirectMessagesList");
 const store = require("../../lib/store");
-const { SetChannels } = require("./sidebarActions");
-const { getChannels, createChannel } = require("../../lib/api/channelsApi");
+const { SetChannels, SetSelectedChannel } = require("./sidebarActions");
+const { getChannels } = require("../../lib/api/channelsApi");
 
 (async () => {
   const createChannelButton = document.querySelector("[data-js=channels]");
@@ -23,14 +23,14 @@ const { getChannels, createChannel } = require("../../lib/api/channelsApi");
     alert("Show create channel modal");
   });
 
-  let channels = await getChannels();
-
-  if (channels.length < 1) {
-    const generalChannel = await createChannel("general");
-    channels = [generalChannel];
-  }
-
+  const channels = await getChannels();
   store.dispatch(SetChannels(channels));
+  const lastVisitedChannel = store.state.app.user.lastVisitedChannel;
+  const selectedChannel = channels.find(
+    channel => channel.name === lastVisitedChannel
+  );
+  store.dispatch(SetSelectedChannel(selectedChannel));
+
   window.channelsList = new ChannelsList();
   const channelsNode = createElement(window.channelsList);
 
