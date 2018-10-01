@@ -31,7 +31,10 @@ class DirectMessagesList extends Component {
 
   loadDirectMessages(event, channelName) {
     event.preventDefault();
-    this.dispatch(SetSelectedChannel(channelName));
+    const channel = this.getStoreState().sidebar.channels.find(
+      channel => channel.name === channelName
+    );
+    this.dispatch(SetSelectedChannel(channel));
     this.refs[channelName].classList.add("sidebar__li--selected");
   }
 

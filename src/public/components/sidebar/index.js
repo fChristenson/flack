@@ -1,39 +1,46 @@
 const createElement = require("../../lib/createElement");
 const ChannelsList = require("./ChannelsList");
 const DirectMessagesList = require("./DirectMessagesList");
-const sidebarReducer = require("./sidebarReducer");
-const initState = require("./initState");
 const store = require("../../lib/store");
+const { SetChannels } = require("./sidebarActions");
+const { getChannels, createChannel } = require("../../lib/api/channelsApi");
 
-const createChannelButton = document.querySelector("[data-js=channels]");
-const createDirectMessageButton = document.querySelector(
-  "[data-js=direct-messages]"
-);
-const channelsList = document.querySelector("[data-js=channels-list]");
-const directMessagesList = document.querySelector(
-  "[data-js=direct-messages-list]"
-);
+(async () => {
+  const createChannelButton = document.querySelector("[data-js=channels]");
+  const createDirectMessageButton = document.querySelector(
+    "[data-js=direct-messages]"
+  );
+  const channelsList = document.querySelector("[data-js=channels-list]");
+  const directMessagesList = document.querySelector(
+    "[data-js=direct-messages-list]"
+  );
 
-createDirectMessageButton.addEventListener("click", event => {
-  alert("Show create direct message modal");
-});
+  createDirectMessageButton.addEventListener("click", event => {
+    alert("Show create direct message modal");
+  });
 
-createChannelButton.addEventListener("click", event => {
-  alert("Show create channel modal");
-});
+  createChannelButton.addEventListener("click", event => {
+    alert("Show create channel modal");
+  });
 
-const channels = [{ channelName: "general" }, { channelName: "foo" }];
-window.channelsList = new ChannelsList({ channels });
-const channelsNode = createElement(window.channelsList);
+  let channels = await getChannels();
 
-const directMessages = [{ channelName: "general" }, { channelName: "foo" }];
-window.directMessagesList = new DirectMessagesList({ directMessages });
-const directMessagesNode = createElement(window.directMessagesList);
+  if (channels.length < 1) {
+    const generalChannel = await createChannel("general");
+    channels = [generalChannel];
+  }
 
-channelsList.parentNode.replaceChild(channelsNode, channelsList);
-directMessagesList.parentNode.replaceChild(
-  directMessagesNode,
-  directMessagesList
-);
+  store.dispatch(SetChannels(channels));
+  window.channelsList = new ChannelsList();
+  const channelsNode = createElement(window.channelsList);
 
-store.setReducer("sidebar", sidebarReducer, initState);
+  const directMessages = [];
+  window.directMessagesList = new DirectMessagesList({ directMessages });
+  const directMessagesNode = createElement(window.directMessagesList);
+
+  channelsList.parentNode.replaceChild(channelsNode, channelsList);
+  directMessagesList.parentNode.replaceChild(
+    directMessagesNode,
+    directMessagesList
+  );
+})();

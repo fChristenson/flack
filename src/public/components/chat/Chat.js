@@ -1,14 +1,14 @@
 const Component = require("../component");
 const ChatMenu = require("./ChatMenu");
 const createElement = require("../../lib/createElement");
+const { SET_TYPING_USER } = require("./chatEvents");
 const { OpenActionbar } = require("../actionbar/actionbarActions");
-const socketIO = require("socket.io-client");
-const socket = socketIO();
 
 const LINE_HEIGHT_IN_PIXELS = 14;
 const TEXT_AREA_MAX_HEIGHT = 200;
 const RETURN_KEY = 13;
-const BACKSPACE_KEY = 8;
+
+const user = "foo" + Math.random();
 
 class Chat extends Component {
   constructor(props) {
@@ -19,30 +19,48 @@ class Chat extends Component {
     this.openMoreActions = this.openMoreActions.bind(this);
     this.openThreadAction = this.openThreadAction.bind(this);
     this.postMessage = this.postMessage.bind(this);
+    this._sendMessage = this._sendMessage.bind(this);
+    this._createNewRow = this._createNewRow.bind(this);
   }
 
   postMessage(event) {
     event.preventDefault();
+
     if (event.keyCode === RETURN_KEY && !event.shiftKey) {
-      const message = event.target.value;
-      event.target.value = "";
-      socket.emit("message", message);
-      document.body.style.setProperty("--message-height", 0);
+      this._sendMessage(event);
     } else if (event.keyCode === RETURN_KEY) {
-      const heightString = document.body.style.getPropertyValue(
-        "--message-height"
-      );
-      const height = parseInt(heightString || 0);
-      const newHeight = Math.min(
-        TEXT_AREA_MAX_HEIGHT,
-        height + LINE_HEIGHT_IN_PIXELS
-      );
-      document.body.style.setProperty("--message-height", newHeight);
-    } else if (
-      event.keyCode === BACKSPACE_KEY && event.target.value.length < 1
-    ) {
-      document.body.style.setProperty("--message-height", 0);
+      this._createNewRow();
     }
+
+    if (event.target.value.length < 1) {
+      document.body.style.setProperty("--message-height", 0);
+      window.socket.emit("stopped-typing", user);
+    } else if (event.target.value.length > 0) {
+      window.socket.emit("started-typing", user);
+    }
+  }
+
+  _createNewRow() {
+    const heightString = document.body.style.getPropertyValue(
+      "--message-height"
+    );
+    const height = parseInt(heightString || 0);
+    const newHeight = Math.min(
+      TEXT_AREA_MAX_HEIGHT,
+      height + LINE_HEIGHT_IN_PIXELS
+    );
+    document.body.style.setProperty("--message-height", newHeight);
+  }
+
+  _sendMessage(event) {
+    const message = {
+      userId: "myId",
+      channelId: this.getStoreState().sidebar.selectedChannel._id,
+      text: event.target.value
+    };
+    socket.emit("message", message);
+    event.target.value = "";
+    document.body.style.setProperty("--message-height", 0);
   }
 
   openThreadAction(event, postKey) {
@@ -76,7 +94,20 @@ class Chat extends Component {
     `;
   }
 
-  onEvent(state, action) {}
+  onEvent(state, action) {
+    if (action.type === SET_TYPING_USER) {
+      const users = Object.keys(state.chat.typingUsers);
+      const typingUsers = users.filter(user => !!state.chat.typingUsers[user]);
+
+      if (typingUsers.length > 1) {
+        this.refs.typing.textContent = "Several people are typing...";
+      } else if (typingUsers.length === 1) {
+        this.refs.typing.textContent = `${typingUsers[0]} is typing...`;
+      } else {
+        this.refs.typing.textContent = "";
+      }
+    }
+  }
 
   render() {
     return `
@@ -85,7 +116,7 @@ class Chat extends Component {
           <ul>
             ${this.props.posts.map(this.renderPosts).join("")}
           </ul>
-          <div class="chat__typing">Someone is typing...</div>
+          <div data-ref="typing" class="chat__typing"></div>
         </div>
         <div class="chat__input-container">
           <textarea onkeyup="chat.postMessage(event)" class="chat__input" placeholder="Message"></textarea>
