@@ -71,6 +71,7 @@
 }
 
 .chat__img {
+  background: steelblue;
   border-radius: 3px;
   width: 36px;
   height: 36px;

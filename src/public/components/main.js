@@ -5,9 +5,20 @@ const appInitState = require("./initState");
 const { SetUser } = require("./appActions");
 const sidebarReducer = require("./sidebar/sidebarReducer");
 const sidebarInitState = require("./sidebar/initState");
+const Channel = require("./sidebar/Channel");
 const chatReducer = require("./chat/chatReducer");
 const chatInitState = require("./chat/initState");
+const User = require("./User");
+const { getChannels } = require("../lib/api/channelsApi");
+const { SetChannels } = require("./sidebar/sidebarActions");
 const { SetTypingUser } = require("./chat/chatActions");
+const {
+  SetMessages,
+  AddIncomingMessage,
+  AddMessage
+} = require("./chat/chatActions");
+const { getMessages } = require("../lib/api/chatApi");
+const Message = require("./chat/Message");
 const socketIO = require("socket.io-client");
 const socket = socketIO();
 
@@ -16,8 +27,19 @@ const socket = socketIO();
   store.setReducer("sidebar", sidebarReducer, sidebarInitState);
   store.setReducer("chat", chatReducer, chatInitState);
 
-  const user = await isLoggedIn();
+  const [incomingUser, incomingChannels] = await Promise.all([
+    isLoggedIn(),
+    getChannels()
+  ]);
+  const user = User(incomingUser);
+  const channels = incomingChannels.map(Channel);
+  const selectedChannel = channels.find(
+    channel => channel.name === user.lastVisitedChannel
+  );
+  const messages = await getMessages(selectedChannel.id);
   store.dispatch(SetUser(user));
+  store.dispatch(SetChannels(channels));
+  store.dispatch(SetMessages(messages.map(Message)));
   window.socket = socket;
 
   require("./sidebar");
@@ -33,8 +55,11 @@ const socket = socketIO();
     store.dispatch(SetTypingUser({ user, isTyping: false }));
   });
 
+  window.socket.on("my-message", message => {
+    store.dispatch(AddMessage(Message(message)));
+  });
+
   window.socket.on("message", message => {
-    console.log(message);
-    console.log("--------------------------");
+    store.dispatch(AddIncomingMessage(Message(message)));
   });
 })();

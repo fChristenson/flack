@@ -33,7 +33,9 @@ class ChannelList extends Component {
   }
 
   renderListItem({ selected, name }) {
-    const className = selected ? "sidebar__li--selected" : "sidebar__li";
+    const className = selected
+      ? "sidebar__li--selected sidebar__li"
+      : "sidebar__li";
     return `
       <li data-ref="${name}" class="${className}">
         <a onclick="channelsList.loadChannel(event, '${name}')" class="sidebar__link">

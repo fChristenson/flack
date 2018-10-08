@@ -1,6 +1,8 @@
 const Channel = props => {
   return {
-    name: props.name || ""
+    id: props._id || "",
+    name: props.name || "",
+    selected: props.selected || false
   };
 };
 

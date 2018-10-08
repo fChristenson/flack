@@ -28,6 +28,7 @@ class Header extends Component {
           <form onsubmit="header.onSearch(event)">
             <input class="header__search" type="text" placeholder="Search" />
           </form>
+          <span class="header__username">${this.getStoreState().app.user.username}</span>
           <a class="header__logout" href="/logout">Logout</a>
         </div>
       </header>

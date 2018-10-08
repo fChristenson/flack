@@ -1,3 +1,4 @@
 module.exports = {
-  typingUsers: {}
+  typingUsers: {},
+  messages: []
 };

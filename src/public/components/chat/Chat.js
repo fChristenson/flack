@@ -1,21 +1,23 @@
 const Component = require("../component");
-const ChatMenu = require("./ChatMenu");
+const ChatListItem = require("./ChatListItem");
 const createElement = require("../../lib/createElement");
-const { SET_TYPING_USER } = require("./chatEvents");
+const {
+  SET_TYPING_USER,
+  ADD_MESSAGE,
+  ADD_INCOMING_MESSAGE
+} = require("./chatEvents");
 const { OpenActionbar } = require("../actionbar/actionbarActions");
 
 const LINE_HEIGHT_IN_PIXELS = 14;
 const TEXT_AREA_MAX_HEIGHT = 200;
 const RETURN_KEY = 13;
 
-const user = "foo" + Math.random();
-
 class Chat extends Component {
   constructor(props) {
     super(props);
     this.onEvent = this.onEvent.bind(this);
     this.setSubscriber("chat", this.onEvent);
-    this.renderPosts = this.renderPosts.bind(this);
+    this.renderMessage = this.renderMessage.bind(this);
     this.openMoreActions = this.openMoreActions.bind(this);
     this.openThreadAction = this.openThreadAction.bind(this);
     this.postMessage = this.postMessage.bind(this);
@@ -31,6 +33,8 @@ class Chat extends Component {
     } else if (event.keyCode === RETURN_KEY) {
       this._createNewRow();
     }
+
+    const user = this.getStoreState().app.user.username;
 
     if (event.target.value.length < 1) {
       document.body.style.setProperty("--message-height", 0);
@@ -53,9 +57,10 @@ class Chat extends Component {
   }
 
   _sendMessage(event) {
+    const state = this.getStoreState();
     const message = {
-      userId: "myId",
-      channelId: this.getStoreState().sidebar.selectedChannel._id,
+      userId: state.app.user.id,
+      channelId: state.sidebar.selectedChannel.id,
       text: event.target.value
     };
     socket.emit("message", message);
@@ -63,38 +68,35 @@ class Chat extends Component {
     document.body.style.setProperty("--message-height", 0);
   }
 
-  openThreadAction(event, postKey) {
+  openThreadAction(event) {
     event.preventDefault();
     const title = "Thread";
     const data = { title, component: createElement(window.thread) };
     this.dispatch(OpenActionbar(data));
   }
 
-  openMoreActions(event, postKey) {
+  openMoreActions(event, key) {
     event.preventDefault();
-    alert(postKey);
+    alert(key);
   }
 
-  renderPosts(post, index) {
-    this.setChild(`menu-${index}`, new ChatMenu({ postKey: index }));
-    return `
-      <li class="chat__li">
-        <div>
-          <img class="chat__img" src="${post.imageUrl}" />
-        </div>
-        <div>
-          <div>
-            <span class="chat__username">${post.username}</span>
-            <span class="chat__date">${post.createdAt}</span>
-          </div>
-          <div class="chat__text">${post.text}</div>
-        </div>
-        <template data-child="menu-${index}"></template>
-      </li>
-    `;
+  renderMessage(message, index) {
+    this.setChild(`item-${index}`, new ChatListItem({ message, key: index }));
+    return `<template data-child="item-${index}"></template>`;
   }
 
-  onEvent(state, action) {
+  async onEvent(state, action) {
+    if (action.type === ADD_MESSAGE || action.type === ADD_INCOMING_MESSAGE) {
+      const index = state.chat.messages.length - 1;
+      const message = state.chat.messages[index];
+      const messageElement = new ChatListItem({ message, key: index });
+      this.refs.messages.appendChild(createElement(messageElement));
+    }
+
+    if (action.type === ADD_MESSAGE) {
+      this.refs.text.scrollTop = this.refs.text.scrollHeight;
+    }
+
     if (action.type === SET_TYPING_USER) {
       const users = Object.keys(state.chat.typingUsers);
       const typingUsers = users.filter(user => !!state.chat.typingUsers[user]);
@@ -113,8 +115,10 @@ class Chat extends Component {
     return `
       <div class="chat__container">
         <div data-ref="text" class="chat__text-container">
-          <ul>
-            ${this.props.posts.map(this.renderPosts).join("")}
+          <ul data-ref="messages">
+            ${this.getStoreState()
+      .chat.messages.map(this.renderMessage)
+      .join("")}
           </ul>
           <div data-ref="typing" class="chat__typing"></div>
         </div>

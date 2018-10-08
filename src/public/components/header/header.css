@@ -13,6 +13,7 @@
   align-items: center;
 }
 
+.header__username,
 .header__logout {
   margin-left: var(--margin-l);
 }

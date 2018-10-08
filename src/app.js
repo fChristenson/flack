@@ -30,14 +30,14 @@ io.on("connection", socket => {
   socket.on("message", async message => {
     const { userId, channelId, text } = message;
     const createdAt = Date.now();
-    const createdMessage = await messageService.createMessage(
+    const createdMessage = await messageService.createMessageView(
       userId,
       channelId,
       createdAt,
       text
     );
 
-    socket.send(createdMessage);
+    socket.emit("my-message", createdMessage);
     socket.broadcast.send(createdMessage);
   });
 });
@@ -113,6 +113,16 @@ app.get(
   catchError(async (req, res) => {
     const user = await userService.getUser(req.session.userId);
     res.json(UserView(user));
+  })
+);
+
+app.get(
+  "/api/v1/messages/:channelId",
+  isLoggedIn,
+  catchError(async (req, res) => {
+    const { channelId } = req.params;
+    const views = await messageService.getMessageViews(channelId);
+    res.json(views);
   })
 );
 

@@ -1,7 +1,7 @@
 module.exports = {
   selectedChannel: {
     name: "",
-    _id: ""
+    id: ""
   },
   channels: []
 };
