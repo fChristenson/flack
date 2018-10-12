@@ -1,3 +1,4 @@
+const createAction = require("../../lib/createAction");
 const {
   SET_TYPING_USER,
   SET_MESSAGES,
@@ -6,39 +7,11 @@ const {
   ADD_INCOMING_MESSAGE
 } = require("./chatEvents");
 
-const SetTypingUser = value => {
-  return {
-    type: SET_TYPING_USER,
-    value
-  };
-};
-
-const AddIncomingMessage = value => {
-  return {
-    type: ADD_INCOMING_MESSAGE,
-    value
-  };
-};
-
-const AddMessage = value => {
-  return {
-    type: ADD_MESSAGE,
-    value
-  };
-};
-
-const GetMessages = () => {
-  return {
-    type: GET_MESSAGES
-  };
-};
-
-const SetMessages = value => {
-  return {
-    type: SET_MESSAGES,
-    value
-  };
-};
+const SetTypingUser = createAction(SET_TYPING_USER);
+const AddIncomingMessage = createAction(ADD_INCOMING_MESSAGE);
+const AddMessage = createAction(ADD_MESSAGE);
+const GetMessages = createAction(GET_MESSAGES);
+const SetMessages = createAction(SET_MESSAGES);
 
 module.exports = {
   SetTypingUser,

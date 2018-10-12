@@ -42,6 +42,7 @@ const socket = socketIO();
   store.dispatch(SetMessages(messages.map(Message)));
   window.socket = socket;
 
+  require("./alert");
   require("./sidebar");
   require("./header");
   require("./chat");

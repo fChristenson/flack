@@ -1,18 +1,8 @@
+const createAction = require("../../lib/createAction");
 const { SET_SELECTED_CHANNEL, SET_CHANNELS } = require("./sidebarEvents");
 
-const SetChannels = value => {
-  return {
-    type: SET_CHANNELS,
-    value
-  };
-};
-
-const SetSelectedChannel = value => {
-  return {
-    type: SET_SELECTED_CHANNEL,
-    value
-  };
-};
+const SetChannels = createAction(SET_CHANNELS);
+const SetSelectedChannel = createAction(SET_SELECTED_CHANNEL);
 
 module.exports = {
   SetChannels,

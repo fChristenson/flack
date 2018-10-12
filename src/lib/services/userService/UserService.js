@@ -10,6 +10,7 @@ class UserService {
     this.loginUser = this.loginUser.bind(this);
     this.registerUser = this.registerUser.bind(this);
     this.setLastVisitedChannel = this.setLastVisitedChannel.bind(this);
+    this.getUsersInChat = this.getUsersInChat.bind(this);
   }
 
   async loginUser(username, password) {
@@ -44,6 +45,10 @@ class UserService {
 
   createUser(name) {
     return new this.Model({ name }).save();
+  }
+
+  getUsersInChat() {
+    return this.Model.find({});
   }
 
   getUser(userId) {

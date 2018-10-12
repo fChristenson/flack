@@ -1,6 +1,7 @@
 @import "./global.css";
 @import "./content.css";
 @import "./login.css";
+@import "../components/alert/alert.css";
 @import "../components/sidebar/sidebar.css";
 @import "../components/chat/chat.css";
 @import "../components/header/header.css";

@@ -135,6 +135,15 @@ app.get(
   })
 );
 
+app.get(
+  "/api/v1/users",
+  isLoggedIn,
+  catchError(async (req, res) => {
+    const users = await userService.getUsersInChat();
+    res.json(users);
+  })
+);
+
 app.post(
   "/api/v1/channels",
   isLoggedIn,
