@@ -74,6 +74,8 @@
 
 .sidebar__direct-message-link,
 .sidebar__link {
+  color: var(--color-white);
+  text-decoration: none;
   margin-left: var(--margin-l);
   width: calc(100% - var(--margin-l));
   height: 100%;

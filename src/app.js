@@ -1,16 +1,14 @@
 const express = require("express");
 const path = require("path");
-const catchError = require("./lib/utils/catchError");
-const UserView = require("./lib/services/userService/UserView");
 const config = require("./config");
 const app = express();
-const isLoggedIn = require("./lib/utils/isLoggedIn");
-const isLoggedInWithRedirect = require("./lib/utils/isLoggedInWithRedirect");
+const { messageService, channelService } = require("./lib/services");
 const {
-  channelService,
-  messageService,
-  userService
-} = require("./lib/services");
+  messageRoutes,
+  userRoutes,
+  generalRoutes,
+  channelRoutes
+} = require("./routes");
 const http = require("http");
 const session = require("express-session");
 const MongoStore = require("connect-mongo")(session);
@@ -18,13 +16,29 @@ const server = http.Server(app);
 const socketIO = require("socket.io");
 const io = socketIO(server);
 
-io.on("connection", socket => {
-  socket.on("started-typing", user => {
-    socket.broadcast.emit("started-typing", user);
+io.on("connection", async socket => {
+  socket.on("init", async userId => {
+    socket.join(userId);
+    const channels = await channelService.getChannels(userId);
+
+    channels.forEach(channel => {
+      socket.join(channel.id);
+    });
   });
 
-  socket.on("stopped-typing", user => {
-    socket.broadcast.emit("stopped-typing", user);
+  socket.on("first-direct-message", message => {
+    const { userId, channelId } = message;
+    socket.to(userId).emit("first-direct-message", channelId);
+  });
+
+  socket.on("started-typing", message => {
+    const { user, channelId } = message;
+    socket.to(channelId).emit("started-typing", { user, channelId });
+  });
+
+  socket.on("stopped-typing", message => {
+    const { user, channelId } = message;
+    socket.to(channelId).emit("stopped-typing", { user, channelId });
   });
 
   socket.on("message", async message => {
@@ -38,7 +52,7 @@ io.on("connection", socket => {
     );
 
     socket.emit("my-message", createdMessage);
-    socket.broadcast.send(createdMessage);
+    socket.to(channelId).send(createdMessage);
   });
 });
 
@@ -58,101 +72,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "..", "dist")));
 
-app.get(
-  "/",
-  isLoggedInWithRedirect,
-  catchError((req, res) => {
-    res.sendFile(path.join(__dirname, "..", "dist", "main.html"));
-  })
-);
-
-app.get(
-  "/register",
-  catchError(async (req, res) => {
-    res.sendFile(path.join(__dirname, "views", "register.html"));
-  })
-);
-
-app.get(
-  "/login",
-  catchError(async (req, res) => {
-    res.sendFile(path.join(__dirname, "views", "login.html"));
-  })
-);
-
-app.get(
-  "/logout",
-  catchError(async (req, res) => {
-    req.session.destroy();
-    res.redirect("/login");
-  })
-);
-
-app.post(
-  "/register",
-  catchError(async (req, res) => {
-    const { username, password } = req.body;
-    const user = await userService.registerUser(username, password);
-    req.session.userId = user.id;
-    res.redirect("/");
-  })
-);
-
-app.post(
-  "/login",
-  catchError(async (req, res) => {
-    const { username, password } = req.body;
-    const user = await userService.loginUser(username, password);
-    req.session.userId = user.id;
-    res.redirect("/");
-  })
-);
-
-app.get(
-  "/api/v1/logged-in",
-  catchError(async (req, res) => {
-    const user = await userService.getUser(req.session.userId);
-    res.json(UserView(user));
-  })
-);
-
-app.get(
-  "/api/v1/messages/:channelId",
-  isLoggedIn,
-  catchError(async (req, res) => {
-    const { channelId } = req.params;
-    const views = await messageService.getMessageViews(channelId);
-    res.json(views);
-  })
-);
-
-app.get(
-  "/api/v1/channels",
-  isLoggedIn,
-  catchError(async (req, res) => {
-    const channels = await channelService.getChannels();
-    res.json(channels);
-  })
-);
-
-app.get(
-  "/api/v1/users",
-  isLoggedIn,
-  catchError(async (req, res) => {
-    const users = await userService.getUsersInChat();
-    res.json(users);
-  })
-);
-
-app.post(
-  "/api/v1/channels",
-  isLoggedIn,
-  catchError(async (req, res) => {
-    const { name } = req.body;
-    const channel = await channelService.createChannel(name);
-    res.json(channel);
-  })
-);
+app.use("/", [generalRoutes, messageRoutes, channelRoutes, userRoutes]);
 
 app.use((req, res, next) => {
   res.status(404).end("404 not found");

@@ -1,7 +1,16 @@
 const Component = require("../../../component");
 const UserListItem = require("./UserListItem");
-const { FilterDirectMessages } = require("../../alertActions");
+const { FilterDirectMessages, CloseAlert } = require("../../alertActions");
 const { FILTER_DIRECT_MESSAGES } = require("../../alertEvents");
+const Channel = require("../../../sidebar/Channel");
+const {
+  SetChannels,
+  SetSelectedChannel
+} = require("../../../sidebar/sidebarActions");
+const {
+  createChannel,
+  getChannels
+} = require("../../../../lib/api/channelsApi");
 
 class AlertDirectMessageList extends Component {
   constructor(props) {
@@ -10,12 +19,30 @@ class AlertDirectMessageList extends Component {
     this.filterUsers = this.filterUsers.bind(this);
     this.setSubscriber("alertDirectMessagesList", this.onEvent);
     this.renderUser = this.renderUser.bind(this);
+    this.sendDirectMessage = this.sendDirectMessage.bind(this);
   }
 
   filterUsers(event) {
     event.preventDefault();
     const text = event.target.value;
     this.dispatch(FilterDirectMessages(text));
+  }
+
+  async sendDirectMessage(event, userToMessageId, userToMessageName) {
+    event.preventDefault();
+    const currentUser = this.getStoreState().app.user;
+    const incomingChannel = await createChannel(
+      `${currentUser.username},${userToMessageName}`,
+      [currentUser.id, userToMessageId],
+      "directMessage"
+    );
+    const channel = Channel(incomingChannel, currentUser);
+    window.socket.emit("first-direct-message", {
+      userId: userToMessageId,
+      channelId: channel.id
+    });
+    this.dispatch(CloseAlert());
+    window.location.hash = `#/channels/${channel.id}`;
   }
 
   onEvent(state, action) {

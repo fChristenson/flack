@@ -1,4 +1,6 @@
 const bcrypt = require("bcrypt");
+const CurrentUserView = require("./CurrentUserView");
+const UserView = require("./UserView");
 const SALT_ROUNDS = 10;
 
 class UserService {
@@ -11,6 +13,7 @@ class UserService {
     this.registerUser = this.registerUser.bind(this);
     this.setLastVisitedChannel = this.setLastVisitedChannel.bind(this);
     this.getUsersInChat = this.getUsersInChat.bind(this);
+    this.getCurrentUserView = this.getCurrentUserView.bind(this);
   }
 
   async loginUser(username, password) {
@@ -39,11 +42,13 @@ class UserService {
 
   async setLastVisitedChannel(userId, channelId) {
     const user = await this.getUser(userId);
-    user.lastVisitedChannel = channelId;
+    user.lastVisitedChannelId = channelId;
     return user.save();
   }
 
-  createUser(name) {
+  async createUser(name) {
+    const user = await this.Model.find({ name });
+    if (user) throw new Error(`${name} is taken`);
     return new this.Model({ name }).save();
   }
 
@@ -53,6 +58,12 @@ class UserService {
 
   getUser(userId) {
     return this.Model.findById(userId);
+  }
+
+  async getCurrentUserView(userId) {
+    const user = await this.Model.findById(userId);
+    if (!user) throw new Error(`User not found for id: ${userId}`);
+    return new CurrentUserView(user);
   }
 
   getUsers(userIdArray) {

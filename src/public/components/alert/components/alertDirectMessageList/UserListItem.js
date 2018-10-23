@@ -7,7 +7,7 @@ class UserListItem extends Component {
 
   render() {
     return `
-      <li data-username="${this.props.user.username}" class="alert__user-list-item">
+      <li onclick="alertDirectMessageList.sendDirectMessage(event, '${this.props.user.id}', '${this.props.user.username}')" data-username="${this.props.user.username}" class="alert__user-list-item">
         <div>
           <div class="alert__user-list-item-image"></div>
         </div>

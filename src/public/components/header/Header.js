@@ -16,7 +16,7 @@ class Header extends Component {
 
   onEvent(state, action) {
     if (action.type === SET_SELECTED_CHANNEL) {
-      this.refs.h1.textContent = state.sidebar.selectedChannel.name;
+      this.refs.h1.textContent = action.value.name;
     }
   }
 

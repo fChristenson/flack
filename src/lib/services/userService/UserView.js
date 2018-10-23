@@ -1,9 +1,8 @@
-const UserView = user => {
-  return {
-    id: user._id,
-    username: user.username,
-    lastVisitedChannel: user.lastVisitedChannel
-  };
-};
+class UserView {
+  constructor(user) {
+    this.id = user._id;
+    this.username = user.username;
+  }
+}
 
 module.exports = UserView;

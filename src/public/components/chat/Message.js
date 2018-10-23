@@ -12,6 +12,7 @@ module.exports = incomingMessage => {
   }
 
   return {
+    channelId: incomingMessage.channelId || "",
     username: (incomingMessage &&
       incomingMessage.user &&
       incomingMessage.user.username) ||

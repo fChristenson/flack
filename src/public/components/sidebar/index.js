@@ -1,6 +1,6 @@
 const createElement = require("../../lib/createElement");
-const ChannelsList = require("./ChannelsList");
-const DirectMessagesList = require("./DirectMessagesList");
+const ChannelsList = require("./components/channelList/ChannelsList");
+const DirectMessagesList = require("./components/directMessagesList/DirectMessagesList");
 const AlertDirectMessageList = require("../alert/components/alertDirectMessageList/AlertDirectMessageList");
 const store = require("../../lib/store");
 const { getUsersInChat } = require("../../lib/api/usersApi");
@@ -31,17 +31,19 @@ createChannelButton.addEventListener("click", event => {
   alert("Show create channel modal");
 });
 
-const lastVisitedChannel = store.state.app.user.lastVisitedChannel;
+const lastVisitedChannelId = store.state.app.user.lastVisitedChannelId;
 const selectedChannel = store.state.sidebar.channels.find(
-  channel => channel.name === lastVisitedChannel
+  channel => channel.id === lastVisitedChannelId
 );
-store.dispatch(SetSelectedChannel(selectedChannel));
+
+if (selectedChannel) {
+  store.dispatch(SetSelectedChannel(selectedChannel));
+}
 
 window.channelsList = new ChannelsList();
 const channelsNode = createElement(window.channelsList);
 
-const directMessages = [];
-window.directMessagesList = new DirectMessagesList({ directMessages });
+window.directMessagesList = new DirectMessagesList();
 const directMessagesNode = createElement(window.directMessagesList);
 
 channelsList.parentNode.replaceChild(channelsNode, channelsList);

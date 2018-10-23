@@ -18,6 +18,10 @@ class Store {
   }
 
   dispatch(action) {
+    if (localStorage.getItem("__DEBUG__")) {
+      console.log(action);
+    }
+
     let newState = {};
     const reducerNames = Object.keys(this.reducers);
 
