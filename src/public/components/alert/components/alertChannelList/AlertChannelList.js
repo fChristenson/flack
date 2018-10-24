@@ -1,7 +1,14 @@
 const Component = require("../../../component");
 const ChannelListItem = require("./ChannelListItem");
-const { FilterChannels, CloseAlert } = require("../../alertActions");
+const {
+  FilterChannels,
+  ShowCreateChannel,
+  CloseAlert
+} = require("../../alertActions");
+const createElement = require("../../../../lib/createElement");
 const { FILTER_CHANNELS } = require("../../alertEvents");
+const CreateChannel = require("./components/createChannel/CreateChannel");
+require("./components/createChannel");
 
 class AlertChannelList extends Component {
   constructor(props) {
@@ -11,6 +18,14 @@ class AlertChannelList extends Component {
     this.setSubscriber("alertChannelList", this.onEvent);
     this.renderChannel = this.renderChannel.bind(this);
     this.openChannel = this.openChannel.bind(this);
+    this.createChannel = this.createChannel.bind(this);
+  }
+
+  createChannel(event) {
+    event.preventDefault();
+    window.createChannel = new CreateChannel();
+    const node = createElement(window.createChannel);
+    this.dispatch(ShowCreateChannel(node));
   }
 
   filterChannels(event) {
@@ -47,17 +62,25 @@ class AlertChannelList extends Component {
   render() {
     return `
       <div>
-        <div class="alert__channel-header">
-          <h1>Browse Channels</h1>
-          <button class="alert__create-channel">Create channel</button>
-        </div>
-        <div class="alert__direct-message-list">
-          <form class="alert__direct-message-form">
-            <input onkeyup="alertChannelList.filterChannels(event)" class="alert__find-conversation" type="text" placeholder="Search channel" />
-          </form>
-          <ul data-ref="channelList" class="alert__direct-message-ul">${this.props.channels
+        <header class="alert__header">
+          <button class="alert__button" onclick="alertModal.close()">
+            <div class="alert__times">&times;</div>
+            esc
+          </button>
+        </header>
+        <div class="alert__content-container">
+            <div class="alert__channel-header">
+            <h1>Browse Channels</h1>
+            <button class="alert__create-channel" onclick="alertChannelList.createChannel(event)">Create channel</button>
+          </div>
+          <div class="alert__direct-message-list">
+            <form class="alert__direct-message-form">
+              <input onkeyup="alertChannelList.filterChannels(event)" class="alert__find-conversation" type="text" placeholder="Search channel" />
+            </form>
+            <ul data-ref="channelList" class="alert__direct-message-ul">${this.props.channels
       .map(this.renderChannel)
       .join("")}</ul>
+          </div>
         </div>
       </div>
     `;

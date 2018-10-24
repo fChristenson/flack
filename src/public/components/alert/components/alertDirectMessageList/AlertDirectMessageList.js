@@ -60,14 +60,22 @@ class AlertDirectMessageList extends Component {
   render() {
     return `
       <div>
-        <h1>Direct Messages</h1>
-        <div class="alert__direct-message-list">
-          <form class="alert__direct-message-form">
-            <input onkeyup="alertDirectMessageList.filterUsers(event)" class="alert__find-conversation" type="text" placeholder="Find or start a conversation" />
-          </form>
-          <ul data-ref="userList" class="alert__direct-message-ul">${this.props.users
+        <header class="alert__header">
+          <button class="alert__button" onclick="alertModal.close()">
+            <div class="alert__times">&times;</div>
+            esc
+          </button>
+        </header>
+        <div class="alert__content-container">
+          <h1>Direct Messages</h1>
+          <div class="alert__direct-message-list">
+            <form class="alert__direct-message-form">
+              <input onkeyup="alertDirectMessageList.filterUsers(event)" class="alert__find-conversation" type="text" placeholder="Find or start a conversation" />
+            </form>
+            <ul data-ref="userList" class="alert__direct-message-ul">${this.props.users
       .map(this.renderUser)
       .join("")}</ul>
+          </div>
         </div>
       </div>
     `;
