@@ -4,8 +4,9 @@ const UserView = require("./UserView");
 const SALT_ROUNDS = 10;
 
 class UserService {
-  constructor(Model) {
+  constructor(Model, channelService) {
     this.Model = Model;
+    this.channelService = channelService;
     this.createUser = this.createUser.bind(this);
     this.getUser = this.getUser.bind(this);
     this.getUsers = this.getUsers.bind(this);
@@ -37,7 +38,14 @@ class UserService {
     if (maybeUser) throw new Error("Username taken");
 
     const hash = await bcrypt.hash(password, SALT_ROUNDS);
-    return new this.Model({ username, password: hash }).save();
+    const user = await new this.Model({ username, password: hash }).save();
+    const numUsers = await this.Model.count({});
+
+    if (numUsers === 1) {
+      await this.channelService.createChannel("general", "channel", [user.id]);
+    }
+
+    return user;
   }
 
   async setLastVisitedChannel(userId, channelId) {

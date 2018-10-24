@@ -2,10 +2,13 @@ const createElement = require("../../lib/createElement");
 const ChannelsList = require("./components/channelList/ChannelsList");
 const DirectMessagesList = require("./components/directMessagesList/DirectMessagesList");
 const AlertDirectMessageList = require("../alert/components/alertDirectMessageList/AlertDirectMessageList");
+const AlertChannelList = require("../alert/components/alertChannelList/AlertChannelList");
 const store = require("../../lib/store");
 const { getUsersInChat } = require("../../lib/api/usersApi");
+const { getAllChannels } = require("../../lib/api/channelsApi");
 const { SetSelectedChannel } = require("./sidebarActions");
 const { ShowAlert } = require("../alert/alertActions");
+const Channel = require("../sidebar/Channel");
 const createChannelButton = document.querySelector("[data-js=channels]");
 const createDirectMessageButton = document.querySelector(
   "[data-js=direct-messages]"
@@ -17,18 +20,19 @@ const directMessagesList = document.querySelector(
 
 createDirectMessageButton.addEventListener("click", async event => {
   const users = await getUsersInChat();
-  const title = "Direct Messages";
   const alertDirectMessageList = new AlertDirectMessageList({ users });
   window.alertDirectMessageList = alertDirectMessageList;
-  const data = {
-    title,
-    component: createElement(window.alertDirectMessageList)
-  };
-  store.dispatch(ShowAlert(data));
+  store.dispatch(ShowAlert(createElement(window.alertDirectMessageList)));
 });
 
-createChannelButton.addEventListener("click", event => {
-  alert("Show create channel modal");
+createChannelButton.addEventListener("click", async event => {
+  const incomingChannels = await getAllChannels();
+  const channels = incomingChannels.map(incoming =>
+    Channel(incoming, store.state.app.user)
+  );
+  const alertChannelList = new AlertChannelList({ channels });
+  window.alertChannelList = alertChannelList;
+  store.dispatch(ShowAlert(createElement(window.alertChannelList)));
 });
 
 const lastVisitedChannelId = store.state.app.user.lastVisitedChannelId;

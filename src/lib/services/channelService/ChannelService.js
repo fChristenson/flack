@@ -3,6 +3,7 @@ class ChannelService {
     this.Model = Model;
     this.getChannel = this.getChannel.bind(this);
     this.getChannels = this.getChannels.bind(this);
+    this.getPublicChannels = this.getPublicChannels.bind(this);
     this.createChannel = this.createChannel.bind(this);
   }
 
@@ -28,6 +29,10 @@ class ChannelService {
 
   getChannels(userId) {
     return this.Model.find({ usersInChannel: userId });
+  }
+
+  getPublicChannels() {
+    return this.Model.find({ type: "channel" });
   }
 }
 

@@ -6,6 +6,15 @@ const isLoggedIn = require("../lib/utils/isLoggedIn");
 const { channelService, userService } = require("../lib/services");
 
 router.get(
+  "/api/v1/channels/all",
+  isLoggedIn,
+  catchError(async (req, res) => {
+    const channels = await channelService.getPublicChannels();
+    res.json(channels);
+  })
+);
+
+router.get(
   "/api/v1/channels",
   isLoggedIn,
   catchError(async (req, res) => {

@@ -50,10 +50,12 @@ class DirectMessagesList extends Component {
 
     if (action.type === SET_CHANNELS) {
       Array.from(this.refs.list.childNodes).forEach(node => node.remove());
-      state.sidebar.channels.forEach(channel => {
-        const child = createElement(new DirectMessagesListItem({ channel }));
-        this.refs.list.appendChild(child);
-      });
+      state.sidebar.channels
+        .filter(channel => channel.type === "directMessage")
+        .forEach(channel => {
+          const child = createElement(new DirectMessagesListItem({ channel }));
+          this.refs.list.appendChild(child);
+        });
     }
   }
 

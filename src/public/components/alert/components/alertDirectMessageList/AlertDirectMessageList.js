@@ -3,14 +3,7 @@ const UserListItem = require("./UserListItem");
 const { FilterDirectMessages, CloseAlert } = require("../../alertActions");
 const { FILTER_DIRECT_MESSAGES } = require("../../alertEvents");
 const Channel = require("../../../sidebar/Channel");
-const {
-  SetChannels,
-  SetSelectedChannel
-} = require("../../../sidebar/sidebarActions");
-const {
-  createChannel,
-  getChannels
-} = require("../../../../lib/api/channelsApi");
+const { createChannel } = require("../../../../lib/api/channelsApi");
 
 class AlertDirectMessageList extends Component {
   constructor(props) {
@@ -66,13 +59,16 @@ class AlertDirectMessageList extends Component {
 
   render() {
     return `
-      <div class="alert__direct-message-list">
-        <form class="alert__direct-message-form">
-          <input onkeyup="alertDirectMessageList.filterUsers(event)" class="alert__find-conversation" type="text" placeholder="Find or start a conversation" />
-        </form>
-        <ul data-ref="userList" class="alert__direct-message-ul">${this.props.users
+      <div>
+        <h1>Direct Messages</h1>
+        <div class="alert__direct-message-list">
+          <form class="alert__direct-message-form">
+            <input onkeyup="alertDirectMessageList.filterUsers(event)" class="alert__find-conversation" type="text" placeholder="Find or start a conversation" />
+          </form>
+          <ul data-ref="userList" class="alert__direct-message-ul">${this.props.users
       .map(this.renderUser)
       .join("")}</ul>
+        </div>
       </div>
     `;
   }

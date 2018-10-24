@@ -9,6 +9,25 @@
   display: none;
 }
 
+.alert__channel-header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.alert__channel-hash {
+  color: var(--color-dark-gray);
+}
+
+.alert__create-channel {
+  border-radius: 5px;
+  cursor: pointer;
+  background: var(--color-dark-green);
+  padding: var(--margin-m) var(--margin-l);
+  color: var(--color-white);
+  font-size: var(--font-size-s);
+  border: none;
+}
+
 .alert__times {
   font-size: calc(var(--font-size-l) * 2);
 }

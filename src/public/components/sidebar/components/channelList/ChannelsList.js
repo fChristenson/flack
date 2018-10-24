@@ -1,5 +1,6 @@
 const Component = require("../../../component");
-const { SET_SELECTED_CHANNEL } = require("../../sidebarEvents");
+const { SET_SELECTED_CHANNEL, SET_CHANNELS } = require("../../sidebarEvents");
+const createElement = require("../../../../lib/createElement");
 const ChannelListItem = require("./ChannelListItem");
 
 class ChannelList extends Component {
@@ -11,13 +12,17 @@ class ChannelList extends Component {
   }
 
   onEvent(state, action) {
-    if (action.type === SET_SELECTED_CHANNEL) {
+    const includes = [SET_SELECTED_CHANNEL, SET_CHANNELS];
+
+    if (includes.includes(action.type)) {
       Array.from(this.refs.list.childNodes).forEach(ref => {
         ref.classList.remove("sidebar__li");
         ref.classList.remove("sidebar__li--selected");
         ref.classList.add("sidebar__li");
       });
+    }
 
+    if (action.type === SET_SELECTED_CHANNEL) {
       const element = Array.from(this.refs.list.childNodes).find(
         element => element.getAttribute("data-channel") === action.value.id
       );
@@ -25,6 +30,16 @@ class ChannelList extends Component {
       if (element) {
         element.classList.add("sidebar__li--selected");
       }
+    }
+
+    if (action.type === SET_CHANNELS) {
+      Array.from(this.refs.list.childNodes).forEach(node => node.remove());
+      state.sidebar.channels
+        .filter(channel => channel.type === "channel")
+        .forEach(channel => {
+          const child = createElement(new ChannelListItem({ channel }));
+          this.refs.list.appendChild(child);
+        });
     }
   }
 
