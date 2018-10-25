@@ -6,6 +6,7 @@ const Channel = (props, currentUser) => {
   return {
     id: props._id || "",
     name: name || "",
+    usersInChannel: props.usersInChannel || [],
     type: props.type || ""
   };
 };

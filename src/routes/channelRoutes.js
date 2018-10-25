@@ -58,4 +58,15 @@ router.put(
   })
 );
 
+router.put(
+  "/api/v1/channels/:channelId/join",
+  isLoggedIn,
+  catchError(async (req, res) => {
+    const { userId } = req.session;
+    const { channelId } = req.params;
+    const channel = await channelService.joinChannel(userId, channelId);
+    res.json(channel);
+  })
+);
+
 module.exports = router;

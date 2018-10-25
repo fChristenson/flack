@@ -5,6 +5,8 @@ const {
   ShowCreateChannel,
   CloseAlert
 } = require("../../alertActions");
+const Channel = require("../../../sidebar/Channel");
+const { getChannel, joinChannel } = require("../../../../lib/api/channelsApi");
 const createElement = require("../../../../lib/createElement");
 const { FILTER_CHANNELS } = require("../../alertEvents");
 const CreateChannel = require("./components/createChannel/CreateChannel");
@@ -36,6 +38,17 @@ class AlertChannelList extends Component {
 
   async openChannel(event, channelId) {
     event.preventDefault();
+    const incomingChannel = await getChannel(channelId);
+    const user = this.getStoreState().app.user;
+    const channel = Channel(incomingChannel, user);
+    const isInChannel = channel.usersInChannel.find(
+      userId => user.id === userId
+    );
+
+    if (!isInChannel) {
+      await joinChannel(channelId);
+    }
+
     this.dispatch(CloseAlert());
     window.location.hash = `#/channels/${channelId}`;
   }
