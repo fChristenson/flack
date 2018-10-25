@@ -7,22 +7,31 @@ class ChannelService {
     this.getPublicChannels = this.getPublicChannels.bind(this);
     this.createChannel = this.createChannel.bind(this);
     this.joinChannel = this.joinChannel.bind(this);
+    this.leaveChannel = this.leaveChannel.bind(this);
   }
 
-  async createChannel(name, type, usersInChannel) {
+  async createChannel(userId, name, type, usersInChannel) {
     const fingerprint = Buffer.from(name.split("").sort().join("")).toString(
       "base64"
     );
     const channel = await this.Model.findOne({ fingerprint });
 
-    if (channel) return channel;
+    if (!channel) {
+      return new this.Model({
+        name,
+        fingerprint,
+        type,
+        usersInChannel
+      }).save();
+    }
 
-    return new this.Model({
-      name,
-      fingerprint,
-      type,
-      usersInChannel
-    }).save();
+    const isInChannel = channel.usersInChannel.find(id => id === userId);
+
+    if (isInChannel) return channel;
+
+    channel.usersInChannel.push(userId);
+
+    return channel.save();
   }
 
   getChannel(channelId) {
@@ -40,6 +49,15 @@ class ChannelService {
     if (isInChannel) return channel;
 
     channel.usersInChannel.push(userId);
+
+    return channel.save();
+  }
+
+  async leaveChannel(userId, channelId) {
+    const channel = await this.Model.findById(channelId);
+    const users = channel.usersInChannel.filter(id => id !== userId);
+
+    channel.usersInChannel = users;
 
     return channel.save();
   }

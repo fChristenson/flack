@@ -25,6 +25,11 @@ window.socket.on("my-message", message => {
 });
 
 window.socket.on("first-direct-message", async channelId => {
+  const hasChannel = store.state.sidebar.channels.find(
+    channel => channel.id === channelId
+  );
+
+  if (hasChannel) return;
   const incomingChannel = await getChannel(channelId);
   const channel = Channel(incomingChannel, store.state.app.user);
   store.dispatch(AddChannel(channel));

@@ -13,7 +13,7 @@ class DirectMessagesList extends Component {
             <span class="sidebar__dot"></span>
             ${this.props.channel.name}
           </span>
-          <button onclick="directMessagesList.removeChannel(event, '${this.props.channel.id}')" class="sidebar__times">&times;</button>
+          <button onclick="directMessagesList.leaveChannel(event, '${this.props.channel.id}')" class="sidebar__times">&times;</button>
         </a>
       </li>
     `;

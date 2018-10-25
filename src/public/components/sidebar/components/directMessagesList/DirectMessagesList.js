@@ -1,9 +1,15 @@
 const Component = require("../../../component");
+const { SetChannels, SetSelectedChannel } = require("../../sidebarActions");
+const Channel = require("../../Channel");
 const {
   SET_SELECTED_CHANNEL,
   SET_CHANNELS,
   ADD_CHANNEL
 } = require("../../sidebarEvents");
+const {
+  leaveChannel,
+  getChannels
+} = require("../../../../lib/api/channelsApi");
 const createElement = require("../../../../lib/createElement");
 const DirectMessagesListItem = require("./DirectMessageListItem");
 
@@ -14,6 +20,31 @@ class DirectMessagesList extends Component {
     this.removeChannel = this.removeChannel.bind(this);
     this.onEvent = this.onEvent.bind(this);
     this.setSubscriber("directMessagesList", this.onEvent);
+    this.leaveChannel = this.leaveChannel.bind(this);
+  }
+
+  async leaveChannel(event, channelId) {
+    event.preventDefault();
+
+    await leaveChannel(channelId);
+    window.socket.emit("leave", channelId);
+    const currentChannelId = this.getStoreState().sidebar.selectedChannel.id;
+
+    if (channelId === currentChannelId) {
+      const general = this.getStoreState().sidebar.channels.find(
+        channel => channel.name === "general"
+      );
+      window.location.hash = `#/channels/${general.id}`;
+    } else {
+      const user = this.getStoreState().app.user;
+      const incomingChannels = await getChannels();
+      const channels = incomingChannels.map(incoming =>
+        Channel(incoming, user)
+      );
+      const selectedChannel = this.getStoreState().sidebar.selectedChannel;
+      this.dispatch(SetChannels(channels));
+      this.dispatch(SetSelectedChannel(selectedChannel));
+    }
   }
 
   onEvent(state, action) {

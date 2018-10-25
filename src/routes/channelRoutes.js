@@ -37,8 +37,10 @@ router.post(
   "/api/v1/channels",
   isLoggedIn,
   catchError(async (req, res) => {
+    const { userId } = req.session;
     const { name, usersInChannel, type } = req.body;
     const channel = await channelService.createChannel(
+      userId,
       name,
       type,
       usersInChannel
@@ -65,6 +67,17 @@ router.put(
     const { userId } = req.session;
     const { channelId } = req.params;
     const channel = await channelService.joinChannel(userId, channelId);
+    res.json(channel);
+  })
+);
+
+router.put(
+  "/api/v1/channels/:channelId/leave",
+  isLoggedIn,
+  catchError(async (req, res) => {
+    const { userId } = req.session;
+    const { channelId } = req.params;
+    const channel = await channelService.leaveChannel(userId, channelId);
     res.json(channel);
   })
 );

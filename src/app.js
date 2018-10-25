@@ -26,6 +26,10 @@ io.on("connection", async socket => {
     });
   });
 
+  socket.on("leave", async channelId => {
+    socket.leave(channelId);
+  });
+
   socket.on("first-direct-message", message => {
     const { userId, channelId } = message;
     socket.to(userId).emit("first-direct-message", channelId);

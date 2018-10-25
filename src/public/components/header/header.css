@@ -18,6 +18,20 @@
   margin-left: var(--margin-l);
 }
 
+.header__leave--hide,
+.header__leave {
+  background: var(--color-white);
+  border-radius: 5px;
+  border: 1px solid var(--color-dark-gray);
+  padding: var(--margin-m) var(--margin-l);
+  margin-right: var(--margin-l);
+  cursor: pointer;
+}
+
+.header__leave--hide {
+  display: none;
+}
+
 .header__search {
   cursor: pointer;
   padding: var(--margin-s);
