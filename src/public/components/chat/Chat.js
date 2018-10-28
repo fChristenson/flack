@@ -8,14 +8,16 @@ const {
   SCROLL_TO_BOTTOM,
   INCOMING_UPDATE_MESSAGE,
   SET_MESSAGES,
+  INCOMING_DELETE_MESSAGE,
+  DELETE_MESSAGE,
   ADD_INCOMING_MESSAGE
 } = require("./chatEvents");
-const { updateMessage } = require("../../lib/api/chatApi");
+const { updateMessage, deleteMessage } = require("../../lib/api/chatApi");
 const EditText = require("./components/editText/EditText");
 const MessageMenu = require("./components/messageMenu/MessageMenu");
 const Message = require("./Message");
 const Thread = require("../actionbar/components/thread/Thread");
-const { UpdateMessage } = require("./chatActions");
+const { UpdateMessage, DeleteMessage } = require("./chatActions");
 const { OpenActionbar } = require("../actionbar/actionbarActions");
 
 const LINE_HEIGHT_IN_PIXELS = 14;
@@ -41,54 +43,56 @@ class Chat extends Component {
     this.saveUpdatedMessage = this.saveUpdatedMessage.bind(this);
   }
 
-  async saveUpdatedMessage(event) {
+  async saveUpdatedMessage(event, messageId) {
     event.preventDefault();
     const element = this.refs.messages.querySelector(
       `[data-js=edit-text-area]`
     );
-    const messageId = this.getStoreState().chat.messages[this.state.key].id;
     const incomingMessage = await updateMessage(messageId, element.value);
     const message = Message(incomingMessage);
     this.dispatch(UpdateMessage(message));
     window.socket.emit("update-message", message.id);
-    this.cancelEdit(event);
+    this.cancelEdit(event, messageId);
   }
 
-  cancelEdit(event) {
+  cancelEdit(event, messageId) {
     event.preventDefault();
     const element = this.refs.messages.querySelector(`[data-js=edit-text]`);
-    const message = this.getStoreState().chat.messages[this.state.key];
+    const message = this.getStoreState().chat.messages.find(
+      message => message.id === messageId
+    );
     const component = new ChatListItem({
-      message,
-      key: this.state.key
+      message
     });
     const node = createElement(component);
-    const textElement = node.querySelector(`[data-js=text-${this.state.key}]`);
+    const textElement = node.querySelector(`[data-js=text-${messageId}]`);
     element.parentNode.replaceChild(textElement, element);
     document.body.style.setProperty("--edit-message-height", 0);
   }
 
-  setEditMessage(event) {
+  setEditMessage(event, messageId) {
     event.preventDefault();
     const element = this.refs.messages.querySelector(
-      `[data-js=text-${this.state.key}]`
+      `[data-js=text-${messageId}]`
     );
-    const item = this.getStoreState().chat.messages[this.state.key];
+    const item = this.getStoreState().chat.messages.find(
+      message => message.id === messageId
+    );
     const text = item.text.replace(/<br\/>/g, "\n");
     text.split("").filter(item => item === "\n").forEach(() => {
       this._createNewRow("--edit-message-height");
     });
-    const node = createElement(new EditText({ text }));
+    const node = createElement(new EditText({ text, messageId }));
     element.parentNode.replaceChild(node, element);
     const textarea = node.querySelector(`[data-js=edit-text-area]`);
     textarea.focus();
     textarea.setSelectionRange(textarea.value.length, textarea.value.length);
   }
 
-  async editMessage(event) {
+  async editMessage(event, messageId) {
     event.preventDefault();
     if (event.keyCode === RETURN_KEY && !event.shiftKey) {
-      await this.saveUpdatedMessage(event);
+      await this.saveUpdatedMessage(event, messageId);
     } else if (event.keyCode === RETURN_KEY) {
       this._createNewRow("--edit-message-height");
     }
@@ -98,9 +102,12 @@ class Chat extends Component {
     }
   }
 
-  deleteMessage(event) {
+  async deleteMessage(event, messageId) {
     event.preventDefault();
-    alert("deleteMessage");
+    const incoming = await deleteMessage(messageId);
+    const message = Message(incoming);
+    this.dispatch(DeleteMessage(message));
+    window.socket.emit("delete-message", message);
   }
 
   postMessage(event) {
@@ -157,17 +164,18 @@ class Chat extends Component {
     this.state.messageMenu.remove();
   }
 
-  openMoreActions(event, key) {
+  openMoreActions(event, messageId) {
     event.preventDefault();
     const targetDimensions = event.target.getBoundingClientRect();
     const targetX = targetDimensions.x;
     const targetY = targetDimensions.y;
-    const username = this.getStoreState().chat.messages[key].username;
+    const username = this.getStoreState().chat.messages.find(
+      message => message.id === messageId
+    ).username;
     const renderElements = username === this.getStoreState().app.user.username;
-    const component = new MessageMenu({ renderElements });
+    const component = new MessageMenu({ renderElements, messageId });
     const node = createElement(component);
     this.state.messageMenu = node;
-    this.state.key = key;
     document.body.appendChild(this.state.messageMenu);
     const menu = this.state.messageMenu.querySelector("[data-js=menu]");
     const menuDimensions = menu.getBoundingClientRect();
@@ -178,15 +186,33 @@ class Chat extends Component {
   }
 
   renderMessage(message, index) {
-    this.setChild(`${index}`, new ChatListItem({ message, key: index }));
+    this.setChild(`${index}`, new ChatListItem({ message }));
     return `<template data-child="${index}"></template>`;
   }
 
   async onEvent(state, action) {
+    if (action.type === INCOMING_DELETE_MESSAGE) {
+      const messageId = action.value;
+      const node = Array.from(this.refs.messages.childNodes).find(
+        el => el.getAttribute("data-message") === messageId
+      );
+
+      if (node) node.remove();
+    }
+
+    if (action.type === DELETE_MESSAGE) {
+      const messageId = action.value.id;
+      const node = Array.from(this.refs.messages.childNodes).find(
+        el => el.getAttribute("data-message") === messageId
+      );
+
+      if (node) node.remove();
+    }
+
     if (action.type === SET_MESSAGES) {
       Array.from(this.refs.messages.childNodes).forEach(el => el.remove());
-      state.chat.messages.forEach((message, index) => {
-        const messageElement = new ChatListItem({ message, key: index });
+      state.chat.messages.forEach(message => {
+        const messageElement = new ChatListItem({ message });
         this.refs.messages.appendChild(createElement(messageElement));
       });
     }
@@ -196,13 +222,8 @@ class Chat extends Component {
         `[data-message="${action.value.id}"]`
       );
 
-      const index = state.chat.messages
-        .map(message => message.id)
-        .indexOf(action.value.id);
-
       const newElement = new ChatListItem({
-        message: action.value,
-        key: index
+        message: action.value
       });
 
       messageElement.parentNode.replaceChild(
@@ -214,7 +235,7 @@ class Chat extends Component {
     if (action.type === ADD_MESSAGE || action.type === ADD_INCOMING_MESSAGE) {
       const index = state.chat.messages.length - 1;
       const message = state.chat.messages[index];
-      const messageElement = new ChatListItem({ message, key: index });
+      const messageElement = new ChatListItem({ message });
       this.refs.messages.appendChild(createElement(messageElement));
     }
 

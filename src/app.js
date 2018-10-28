@@ -35,6 +35,10 @@ io.on("connection", async socket => {
     socket.to(updatedMessage.channelId).emit("update-message", updatedMessage);
   });
 
+  socket.on("delete-message", async message => {
+    socket.to(message.channelId).emit("delete-message", message.id);
+  });
+
   socket.on("first-direct-message", message => {
     const { userId, channelId } = message;
     socket.to(userId).emit("first-direct-message", channelId);

@@ -8,14 +8,14 @@ class MessageMenu extends Component {
 
   renderElements() {
     return `
-      <li onclick="chat.setEditMessage(event)" class="chat__message-menu-li">Edit message</li>
-      <li onclick="chat.deleteMessage(event)" class="chat__message-menu-li--delete">Delete message</li>
+      <li onclick="chat.setEditMessage(event, '${this.props.messageId}')" class="chat__message-menu-li">Edit message</li>
+      <li onclick="chat.deleteMessage(event, '${this.props.messageId}')" class="chat__message-menu-li--delete">Delete message</li>
     `;
   }
 
   render() {
     return `
-      <div onclick="chat.closeMessageMenu(event)" class="chat__message-container">
+      <div onclick="chat.closeMessageMenu(event, '${this.props.messageId}')" class="chat__message-container">
         <ul data-js="menu" class="chat__message-menu">
           ${this.props.renderElements ? this.renderElements() : ""}
         </ul>

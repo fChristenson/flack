@@ -8,9 +8,17 @@ class MessageService {
     this.getMessageView = this.getMessageView.bind(this);
     this.getMessages = this.getMessages.bind(this);
     this.updateMessage = this.updateMessage.bind(this);
+    this.deleteMessage = this.deleteMessage.bind(this);
     this.createMessage = this.createMessage.bind(this);
     this.getMessageViews = this.getMessageViews.bind(this);
     this.createMessageView = this.createMessageView.bind(this);
+  }
+
+  async deleteMessage(userId, messageId) {
+    const message = await this.Model.findOne({ _id: messageId, userId });
+    const update = await message.delete();
+    const user = await this.userService.getUser(userId);
+    return MessageView(update, user);
   }
 
   async updateMessage(userId, messageId, text) {

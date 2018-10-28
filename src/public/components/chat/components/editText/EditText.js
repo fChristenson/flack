@@ -8,10 +8,10 @@ class EditText extends Component {
   render() {
     return `
       <div data-js="edit-text" class="chat__edit-text">
-        <textarea onkeyup="chat.editMessage(event)" class="chat__edit-text-textarea" data-js="edit-text-area">${this.props.text}</textarea>
+        <textarea onkeyup="chat.editMessage(event, '${this.props.messageId}')" class="chat__edit-text-textarea" data-js="edit-text-area">${this.props.text}</textarea>
         <div class="chat__edit-text-button-container">
-          <button onclick="chat.cancelEdit(event)" class="chat__edit-text-cancel">Cancel</button>
-          <button onclick="chat.saveUpdatedMessage(event)" class="chat__edit-text-save">Save Changes</button>
+          <button onclick="chat.cancelEdit(event, '${this.props.messageId}')" class="chat__edit-text-cancel">Cancel</button>
+          <button onclick="chat.saveUpdatedMessage(event, '${this.props.messageId}')" class="chat__edit-text-save">Save Changes</button>
         </div>
       </div>
     `;

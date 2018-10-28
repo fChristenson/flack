@@ -8,8 +8,8 @@ class ChatListItem extends Component {
 
   render() {
     this.setChild(
-      `menu-${this.props.key}`,
-      new ChatMenu({ key: this.props.key })
+      `menu-${this.props.message.id}`,
+      new ChatMenu({ messageId: this.props.message.id })
     );
     return `
       <li data-message="${this.props.message.id}" class="chat__li">
@@ -21,9 +21,9 @@ class ChatListItem extends Component {
             <span class="chat__username">${this.props.message.username}</span>
             <span class="chat__date">${this.props.message.createdAt}</span>
           </div>
-          <div data-js="text-${this.props.key}" class="chat__text">${this.props.message.text}</div>
+          <div data-js="text-${this.props.message.id}" class="chat__text">${this.props.message.text}</div>
         </div>
-        <template data-child="menu-${this.props.key}"></template>
+        <template data-child="menu-${this.props.message.id}"></template>
       </li>
     `;
   }

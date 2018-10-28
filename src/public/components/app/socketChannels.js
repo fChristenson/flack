@@ -2,7 +2,8 @@ const { SetTypingUser } = require("../chat/chatActions");
 const {
   AddIncomingMessage,
   IncomingUpdateMessage,
-  AddMessage
+  AddMessage,
+  IncomingDeleteMessage
 } = require("../chat/chatActions");
 const { getChannel } = require("../../lib/api/channelsApi");
 const store = require("../../lib/store");
@@ -52,4 +53,8 @@ window.socket.on("update-message", async incomingMessage => {
   if (store.state.sidebar.selectedChannel.id === message.channelId) {
     store.dispatch(IncomingUpdateMessage(message));
   }
+});
+
+window.socket.on("delete-message", messageId => {
+  store.dispatch(IncomingDeleteMessage(messageId));
 });

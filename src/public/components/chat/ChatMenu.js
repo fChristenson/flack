@@ -8,8 +8,8 @@ class ChatMenu extends Component {
   render() {
     return `
       <ul class="chat__menu">
-        <li onclick="chat.openThreadAction(event, '${this.props.key}')" class="chat__menu-li chat__menu-li--chat"></li>
-        <li onclick="chat.openMoreActions(event, '${this.props.key}')" class="chat__menu-li">&middot;&middot;&middot;</li>
+        <li onclick="chat.openThreadAction(event, '${this.props.messageId}')" class="chat__menu-li chat__menu-li--chat"></li>
+        <li onclick="chat.openMoreActions(event, '${this.props.messageId}')" class="chat__menu-li">&middot;&middot;&middot;</li>
       </ul>
     `;
   }

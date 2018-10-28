@@ -14,6 +14,17 @@ router.get(
   })
 );
 
+router.delete(
+  "/api/v1/messages/:messageId",
+  isLoggedIn,
+  catchError(async (req, res) => {
+    const { messageId } = req.params;
+    const { userId } = req.session;
+    const view = await messageService.deleteMessage(userId, messageId);
+    res.json(view);
+  })
+);
+
 router.put(
   "/api/v1/messages/:messageId",
   isLoggedIn,
