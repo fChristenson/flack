@@ -1,5 +1,9 @@
 const { SetTypingUser } = require("../chat/chatActions");
-const { AddIncomingMessage, AddMessage } = require("../chat/chatActions");
+const {
+  AddIncomingMessage,
+  IncomingUpdateMessage,
+  AddMessage
+} = require("../chat/chatActions");
 const { getChannel } = require("../../lib/api/channelsApi");
 const store = require("../../lib/store");
 const Message = require("../chat/Message");
@@ -40,5 +44,12 @@ window.socket.on("message", async incomingMessage => {
   const message = Message(incomingMessage);
   if (store.state.sidebar.selectedChannel.id === message.channelId) {
     store.dispatch(AddIncomingMessage(message));
+  }
+});
+
+window.socket.on("update-message", async incomingMessage => {
+  const message = Message(incomingMessage);
+  if (store.state.sidebar.selectedChannel.id === message.channelId) {
+    store.dispatch(IncomingUpdateMessage(message));
   }
 });

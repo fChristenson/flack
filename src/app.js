@@ -30,6 +30,11 @@ io.on("connection", async socket => {
     socket.leave(channelId);
   });
 
+  socket.on("update-message", async messageId => {
+    const updatedMessage = await messageService.getMessageView(messageId);
+    socket.to(updatedMessage.channelId).emit("update-message", updatedMessage);
+  });
+
   socket.on("first-direct-message", message => {
     const { userId, channelId } = message;
     socket.to(userId).emit("first-direct-message", channelId);

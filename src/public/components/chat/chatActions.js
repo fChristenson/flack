@@ -6,7 +6,9 @@ const {
   SCROLL_TO_BOTTOM,
   GET_MESSAGES,
   ADD_MESSAGE,
-  ADD_INCOMING_MESSAGE
+  INCOMING_UPDATE_MESSAGE,
+  ADD_INCOMING_MESSAGE,
+  UPDATE_MESSAGE
 } = require("./chatEvents");
 
 const ScrollToBottom = createAction(SCROLL_TO_BOTTOM);
@@ -16,10 +18,14 @@ const AddIncomingMessage = createAction(ADD_INCOMING_MESSAGE);
 const AddMessage = createAction(ADD_MESSAGE);
 const GetMessages = createAction(GET_MESSAGES);
 const SetMessages = createAction(SET_MESSAGES);
+const UpdateMessage = createAction(UPDATE_MESSAGE);
+const IncomingUpdateMessage = createAction(INCOMING_UPDATE_MESSAGE);
 
 module.exports = {
   SetTypingUser,
+  IncomingUpdateMessage,
   ScrollToBottom,
+  UpdateMessage,
   ResetTypingUsers,
   SetMessages,
   AddMessage,

@@ -16,6 +16,7 @@ body {
   --color-blue: #0C5F97;
   --color-white: #fff;
   --color-light-gray: #eee;
+  --color-red: #D52E43;
   --color-gray: #CAC4C9;
   --color-brown: #4D394B;
   --color-dark-brown: #3E313C;
@@ -30,4 +31,5 @@ body {
   --font-size-m: 20px;
   --font-size-l: 24px;
   --message-height: 0;
+  --edit-message-height: 0;
 }
