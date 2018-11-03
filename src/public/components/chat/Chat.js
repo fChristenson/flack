@@ -2,6 +2,11 @@ const Component = require("../component");
 const ChatListItem = require("./ChatListItem");
 const createElement = require("../../lib/createElement");
 const {
+  SetReplies,
+  SetSelectedMessageId
+} = require("../actionbar/components/thread/threadActions");
+const Reply = require("../actionbar/components/thread/Reply");
+const {
   SET_TYPING_USER,
   RESET_TYPING_USERS,
   ADD_MESSAGE,
@@ -12,17 +17,28 @@ const {
   DELETE_MESSAGE,
   ADD_INCOMING_MESSAGE
 } = require("./chatEvents");
-const { updateMessage, deleteMessage } = require("../../lib/api/chatApi");
-const EditText = require("./components/editText/EditText");
+const { deleteMessage, getReplies } = require("../../lib/api/chatApi");
 const MessageMenu = require("./components/messageMenu/MessageMenu");
 const Message = require("./Message");
 const Thread = require("../actionbar/components/thread/Thread");
-const { UpdateMessage, DeleteMessage } = require("./chatActions");
+const {
+  UpdateMessage,
+  DeleteMessage,
+  EditMessage,
+  StopEditMessage
+} = require("./chatActions");
 const { OpenActionbar } = require("../actionbar/actionbarActions");
+const MessageTextArea = require("../messageTextArea/MessageTextArea");
+const {
+  ResetTextAreaHeight,
+  AddTextAreaRow
+} = require("../messageTextArea/messageTextAreaActions");
+const {
+  ScrollThreadToBottom
+} = require("../actionbar/components/thread/threadActions");
 
-const LINE_HEIGHT_IN_PIXELS = 14;
-const TEXT_AREA_MAX_HEIGHT = 200;
 const RETURN_KEY = 13;
+const textAreaName = "chatTextArea";
 
 class Chat extends Component {
   constructor(props) {
@@ -38,55 +54,23 @@ class Chat extends Component {
     this.closeMessageMenu = this.closeMessageMenu.bind(this);
     this.setEditMessage = this.setEditMessage.bind(this);
     this.deleteMessage = this.deleteMessage.bind(this);
-    this._createNewRow = this._createNewRow.bind(this);
     this.cancelEdit = this.cancelEdit.bind(this);
     this.saveUpdatedMessage = this.saveUpdatedMessage.bind(this);
   }
 
   async saveUpdatedMessage(event, messageId) {
     event.preventDefault();
-    const element = this.refs.messages.querySelector(
-      `[data-js=edit-text-area]`
-    );
-    const incomingMessage = await updateMessage(messageId, element.value);
-    const message = Message(incomingMessage);
-    this.dispatch(UpdateMessage(message));
-    window.socket.emit("update-message", message.id);
-    this.cancelEdit(event, messageId);
+    this.dispatch(UpdateMessage(messageId));
   }
 
   cancelEdit(event, messageId) {
     event.preventDefault();
-    const element = this.refs.messages.querySelector(`[data-js=edit-text]`);
-    const message = this.getStoreState().chat.messages.find(
-      message => message.id === messageId
-    );
-    const component = new ChatListItem({
-      message
-    });
-    const node = createElement(component);
-    const textElement = node.querySelector(`[data-js=text-${messageId}]`);
-    element.parentNode.replaceChild(textElement, element);
-    document.body.style.setProperty("--edit-message-height", 0);
+    this.dispatch(StopEditMessage(messageId));
   }
 
   setEditMessage(event, messageId) {
     event.preventDefault();
-    const element = this.refs.messages.querySelector(
-      `[data-js=text-${messageId}]`
-    );
-    const item = this.getStoreState().chat.messages.find(
-      message => message.id === messageId
-    );
-    const text = item.text.replace(/<br\/>/g, "\n");
-    text.split("").filter(item => item === "\n").forEach(() => {
-      this._createNewRow("--edit-message-height");
-    });
-    const node = createElement(new EditText({ text, messageId }));
-    element.parentNode.replaceChild(node, element);
-    const textarea = node.querySelector(`[data-js=edit-text-area]`);
-    textarea.focus();
-    textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+    this.dispatch(EditMessage(messageId));
   }
 
   async editMessage(event, messageId) {
@@ -94,18 +78,18 @@ class Chat extends Component {
     if (event.keyCode === RETURN_KEY && !event.shiftKey) {
       await this.saveUpdatedMessage(event, messageId);
     } else if (event.keyCode === RETURN_KEY) {
-      this._createNewRow("--edit-message-height");
+      this.dispatch(AddTextAreaRow("edit-text"));
     }
 
     if (event.target.value.length < 1) {
-      document.body.style.setProperty("--edit-message-height", 0);
+      this.dispatch(ResetTextAreaHeight("edit-text"));
     }
   }
 
   async deleteMessage(event, messageId) {
     event.preventDefault();
     const incoming = await deleteMessage(messageId);
-    const message = Message(incoming);
+    const message = new Message(incoming);
     this.dispatch(DeleteMessage(message));
     window.socket.emit("delete-message", message);
   }
@@ -113,33 +97,23 @@ class Chat extends Component {
   postMessage(event) {
     event.preventDefault();
     if (event.keyCode === RETURN_KEY && !event.shiftKey) {
-      this._sendMessage(event, "message", "--message-height");
+      this._sendMessage(event, "message");
     } else if (event.keyCode === RETURN_KEY) {
-      this._createNewRow("--message-height");
+      this.dispatch(AddTextAreaRow(textAreaName));
     }
 
     const user = this.getStoreState().app.user.username;
     const channelId = this.getStoreState().sidebar.selectedChannel.id;
 
     if (event.target.value.length < 1) {
-      document.body.style.setProperty("--message-height", 0);
+      this.dispatch(ResetTextAreaHeight(textAreaName));
       window.socket.emit("stopped-typing", { channelId, user });
     } else if (event.target.value.length > 0) {
       window.socket.emit("started-typing", { channelId, user });
     }
   }
 
-  _createNewRow(varname) {
-    const heightString = document.body.style.getPropertyValue(varname);
-    const height = parseInt(heightString || 0);
-    const newHeight = Math.min(
-      TEXT_AREA_MAX_HEIGHT,
-      height + LINE_HEIGHT_IN_PIXELS
-    );
-    document.body.style.setProperty(varname, newHeight);
-  }
-
-  _sendMessage(event, eventName, varname) {
+  _sendMessage(event, eventName) {
     const state = this.getStoreState();
     const message = {
       userId: state.app.user.id,
@@ -148,15 +122,20 @@ class Chat extends Component {
     };
     window.socket.emit(eventName, message);
     event.target.value = "";
-    document.body.style.setProperty(varname, 0);
+    this.dispatch(ResetTextAreaHeight(textAreaName));
   }
 
-  openThreadAction(event) {
+  async openThreadAction(event, messageId) {
     event.preventDefault();
     const title = "Thread";
+    const incomingReplies = await getReplies(messageId);
+    const replies = incomingReplies.map(incoming => new Reply(incoming));
     window.thread = new Thread();
     const data = { title, component: createElement(window.thread) };
+    this.dispatch(SetReplies(replies));
+    this.dispatch(SetSelectedMessageId(messageId));
     this.dispatch(OpenActionbar(data));
+    this.dispatch(ScrollThreadToBottom());
   }
 
   closeMessageMenu(event) {
@@ -262,6 +241,18 @@ class Chat extends Component {
   }
 
   render() {
+    this.setChild(
+      "textarea",
+      new MessageTextArea({
+        text: "",
+        heightVariableString: "--message-height",
+        textAreaName,
+        dataJsName: "",
+        className: "chat__input",
+        placeholderText: "Message",
+        onKeyupString: "chat.postMessage(event)"
+      })
+    );
     return `
       <div class="chat__container">
         <div data-ref="text" class="chat__text-container">
@@ -273,7 +264,7 @@ class Chat extends Component {
           <div data-ref="typing" class="chat__typing"></div>
         </div>
         <div class="chat__input-container">
-          <textarea onkeyup="chat.postMessage(event)" class="chat__input" placeholder="Message"></textarea>
+          <template data-child="textarea"></template>
         </div>
       </div>
     `;

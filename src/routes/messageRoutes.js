@@ -2,7 +2,17 @@ const express = require("express");
 const catchError = require("../lib/utils/catchError");
 const router = express.Router();
 const isLoggedIn = require("../lib/utils/isLoggedIn");
-const { messageService } = require("../lib/services");
+const { messageService, replyService } = require("../lib/services");
+
+router.get(
+  "/api/v1/replies/:messageId",
+  isLoggedIn,
+  catchError(async (req, res) => {
+    const { messageId } = req.params;
+    const views = await replyService.getReplyViews(messageId);
+    res.json(views);
+  })
+);
 
 router.get(
   "/api/v1/messages/:channelId",

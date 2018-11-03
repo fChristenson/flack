@@ -26,6 +26,8 @@ const makeCreateElement = domParser => {
 
     delete component.children;
 
+    if (component.onCreated) component.onCreated();
+
     return doc.body.firstChild;
   };
 };

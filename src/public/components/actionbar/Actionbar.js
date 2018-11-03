@@ -1,6 +1,8 @@
 const Component = require("../component");
 const { CloseActionbar } = require("./actionbarActions");
 const { OPEN_ACTIONBAR, CLOSE_ACTIONBAR } = require("./actionbarEvents");
+const { SCROLL_THREAD_TO_BOTTOM } = require("./components/thread/threadEvents");
+const { SetSelectedMessageId } = require("./components/thread/threadActions");
 require("./components/thread");
 require("./components/file");
 
@@ -18,6 +20,10 @@ class Actionbar extends Component {
   }
 
   onEvent(state, action) {
+    if (action.type === SCROLL_THREAD_TO_BOTTOM) {
+      this.refs.content.scrollTop = this.refs.content.scrollHeight;
+    }
+
     if (action.type === OPEN_ACTIONBAR) {
       this.refs.title.textContent = action.value.title;
       const child = this.refs.content.firstChild;
@@ -25,6 +31,7 @@ class Actionbar extends Component {
       this.refs.actionbar.style.display = "initial";
     } else if (action.type === CLOSE_ACTIONBAR) {
       this.refs.actionbar.style.display = "none";
+      this.dispatch(SetSelectedMessageId(""));
     }
   }
 
@@ -35,7 +42,7 @@ class Actionbar extends Component {
           <h2 data-ref="title">Header</h2>
           <button class="actionbar__close-btn" onclick="actionbar.closeActionbar(event)">&times;</button>
         </header>
-        <div data-ref="content"> </div>
+        <div class="actionbar__content" data-ref="content"> </div>
       </aside>
     `;
   }

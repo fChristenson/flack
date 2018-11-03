@@ -18,8 +18,15 @@ const getMessages = async channelId => {
   return res.json();
 };
 
+const getReplies = async messageId => {
+  const req = Request("GET");
+  const res = await fetch(`/api/v1/replies/${messageId}`, req);
+  return res.json();
+};
+
 module.exports = {
   deleteMessage,
+  getReplies,
   getMessages,
   updateMessage
 };

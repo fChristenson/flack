@@ -32,4 +32,5 @@ body {
   --font-size-l: 24px;
   --message-height: 0;
   --edit-message-height: 0;
+  --thread-message-height: 0;
 }

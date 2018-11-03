@@ -2,7 +2,11 @@ const express = require("express");
 const path = require("path");
 const config = require("./config");
 const app = express();
-const { messageService, channelService } = require("./lib/services");
+const {
+  messageService,
+  replyService,
+  channelService
+} = require("./lib/services");
 const {
   messageRoutes,
   userRoutes,
@@ -66,6 +70,21 @@ io.on("connection", async socket => {
 
     socket.emit("my-message", createdMessage);
     socket.to(channelId).send(createdMessage);
+  });
+
+  socket.on("reply", async reply => {
+    const { userId, channelId, messageId, text } = reply;
+    const createdAt = Date.now();
+    const createdReply = await replyService.createReplyView(
+      userId,
+      channelId,
+      messageId,
+      createdAt,
+      text
+    );
+
+    socket.emit("my-reply", createdReply);
+    socket.to(channelId).emit("reply", createdReply);
   });
 });
 

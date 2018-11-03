@@ -1,24 +1,30 @@
-module.exports = incomingMessage => {
-  let maybeCreatedAt;
-
-  try {
-    const array = incomingMessage.createdAt.split("T");
-    const date = array[0];
-    const time = array[1].substring(0, 5);
-
-    maybeCreatedAt = `${date} ${time}`;
-  } catch (error) {
-    maybeCreatedAt = "";
+class Message {
+  constructor(incomingMessage) {
+    this.id = incomingMessage._id || "";
+    this.replyMessages = incomingMessage.replyMessages || [];
+    this.channelId = incomingMessage.channelId || "";
+    this.username =
+      (incomingMessage.user && incomingMessage.user.username) || "";
+    this.createdAt = this._formatDate(incomingMessage);
+    this.text = incomingMessage.text.replace(/\n/g, "<br/>") || "";
+    this._formatDate = this._formatDate.bind(this);
   }
 
-  return {
-    id: incomingMessage._id || "",
-    channelId: incomingMessage.channelId || "",
-    username: (incomingMessage &&
-      incomingMessage.user &&
-      incomingMessage.user.username) ||
-      "",
-    createdAt: maybeCreatedAt,
-    text: incomingMessage.text.replace(/\n/g, "<br/>") || ""
-  };
-};
+  _formatDate(incomingMessage) {
+    let maybeCreatedAt;
+
+    try {
+      const array = incomingMessage.createdAt.split("T");
+      const date = array[0];
+      const time = array[1].substring(0, 5);
+
+      maybeCreatedAt = `${date} ${time}`;
+    } catch (error) {
+      maybeCreatedAt = "";
+    }
+
+    return maybeCreatedAt;
+  }
+}
+
+module.exports = Message;
