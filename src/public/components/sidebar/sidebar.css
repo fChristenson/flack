@@ -72,6 +72,18 @@
   background: var(--color-green);
 }
 
+.sidebar__unread {
+  margin-right: var(--margin-l);
+  color: var(--color-white);
+  background: var(--color-red);
+  border-radius: 10px;
+  padding: var(--margin-s) var(--margin-m);
+  line-height: 85%;
+  text-align: center;
+  height: 18px;
+  font-size: 12px;
+}
+
 .sidebar__direct-message-link,
 .sidebar__link {
   color: var(--color-white);
@@ -80,6 +92,11 @@
   width: calc(100% - var(--margin-l));
   height: 100%;
   display: block;
+}
+
+.sidebar__link {
+  display: flex;
+  justify-content: space-between;
 }
 
 .sidebar__direct-message-link {

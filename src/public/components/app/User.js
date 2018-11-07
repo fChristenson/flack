@@ -2,7 +2,8 @@ const User = incomingUser => {
   return {
     id: incomingUser.id || "",
     username: incomingUser.username || "",
-    lastVisitedChannelId: incomingUser.lastVisitedChannelId || ""
+    lastVisitedChannelId: incomingUser.lastVisitedChannelId || "",
+    unreadMessages: incomingUser.unreadMessages || {}
   };
 };
 

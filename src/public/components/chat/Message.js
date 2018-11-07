@@ -1,6 +1,7 @@
 class Message {
   constructor(incomingMessage) {
     this.id = incomingMessage._id || "";
+    this.userId = incomingMessage.userId || "";
     this.replyMessages = incomingMessage.replyMessages || [];
     this.channelId = incomingMessage.channelId || "";
     this.username =

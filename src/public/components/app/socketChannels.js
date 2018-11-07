@@ -1,4 +1,6 @@
 const { SetTypingUser } = require("../chat/chatActions");
+const User = require("../app/User");
+const { SetUser } = require("../app/appActions");
 const {
   AddIncomingMessage,
   IncomingUpdateMessage,
@@ -10,6 +12,7 @@ const {
   AddIncomingReply
 } = require("../actionbar/components/thread/threadActions");
 const { getChannel } = require("../../lib/api/channelsApi");
+const { setUnreadMessages } = require("../../lib/api/usersApi");
 const store = require("../../lib/store");
 const Message = require("../chat/Message");
 const Reply = require("../actionbar/components/thread/Reply");
@@ -50,10 +53,22 @@ window.socket.on("first-direct-message", async channelId => {
   window.socket.emit("init", store.state.app.user.id);
 });
 
-window.socket.on("message", incomingMessage => {
+window.socket.on("message", async incomingMessage => {
   const message = new Message(incomingMessage);
   if (store.state.sidebar.selectedChannel.id === message.channelId) {
     store.dispatch(AddIncomingMessage(message));
+  } else {
+    const count = store.state.app.user.unreadMessages[message.channelId];
+    let incomingUser;
+
+    if (count === undefined) {
+      incomingUser = await setUnreadMessages(message.channelId, 1);
+    } else {
+      incomingUser = await setUnreadMessages(message.channelId, count + 1);
+    }
+
+    const user = User(incomingUser);
+    store.dispatch(SetUser(user));
   }
 });
 

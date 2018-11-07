@@ -4,6 +4,7 @@ class CurrentUserView extends UserView {
   constructor(user) {
     super(user);
     this.lastVisitedChannelId = user.lastVisitedChannelId;
+    this.unreadMessages = user.unreadMessages;
   }
 }
 

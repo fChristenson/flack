@@ -15,6 +15,13 @@ class UserService {
     this.setLastVisitedChannel = this.setLastVisitedChannel.bind(this);
     this.getUsersInChat = this.getUsersInChat.bind(this);
     this.getCurrentUserView = this.getCurrentUserView.bind(this);
+    this.setUnreadMessages = this.setUnreadMessages.bind(this);
+  }
+
+  async setUnreadMessages(userId, channelId, unreadMessages) {
+    const user = await this.getUser(userId);
+    user.unreadMessages.set(channelId, unreadMessages);
+    return user.save();
   }
 
   async loginUser(username, password) {
@@ -43,6 +50,7 @@ class UserService {
 
     if (!channel) {
       const channel = await this.channelService.createChannel(
+        user.id,
         "general",
         "channel",
         [user.id]

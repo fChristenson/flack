@@ -33,6 +33,22 @@ router.get(
   })
 );
 
+router.put(
+  "/api/v1/channels/:channelId/set-unread-messages",
+  isLoggedIn,
+  catchError(async (req, res) => {
+    const { channelId } = req.params;
+    const { userId } = req.session;
+    const { unreadMessages } = req.body;
+    const user = await userService.setUnreadMessages(
+      userId,
+      channelId,
+      unreadMessages
+    );
+    res.json(new CurrentUserView(user));
+  })
+);
+
 router.post(
   "/api/v1/channels",
   isLoggedIn,
