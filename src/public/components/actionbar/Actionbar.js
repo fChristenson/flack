@@ -7,7 +7,6 @@ const {
 } = require("./components/searchResults/searchResultsEvents");
 const { SetSelectedMessageId } = require("./components/thread/threadActions");
 require("./components/thread");
-require("./components/file");
 
 class Actionbar extends Component {
   constructor(props) {
