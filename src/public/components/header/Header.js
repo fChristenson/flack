@@ -1,5 +1,14 @@
 const Component = require("../component");
 const { leaveChannel } = require("../../lib/api/channelsApi");
+const { getSearchResults } = require("../../lib/api/searchApi");
+const createElement = require("../../lib/createElement");
+const Message = require("../chat/Message");
+const { OpenActionbar } = require("../actionbar/actionbarActions");
+const SearchResults = require("../actionbar/components/searchResults/SearchResults");
+const {
+  SetSearchResults,
+  ScrollSearchResultsToBottom
+} = require("../actionbar/components/searchResults/searchResultsActions");
 const { SET_SELECTED_CHANNEL } = require("../sidebar/sidebarEvents");
 
 class Header extends Component {
@@ -23,9 +32,17 @@ class Header extends Component {
     window.location.hash = `#/channels/${general.id}`;
   }
 
-  onSearch(event) {
+  async onSearch(event) {
     event.preventDefault();
-    alert("Search");
+    const title = "Search results";
+    const incomingResults = await getSearchResults(event.target.search.value);
+    const results = incomingResults.map(incoming => new Message(incoming));
+    window.searchResults = new SearchResults();
+    const data = { title, component: createElement(window.searchResults) };
+    this.dispatch(SetSearchResults(results));
+    this.dispatch(OpenActionbar(data));
+    this.dispatch(ScrollSearchResultsToBottom());
+    event.target.search.value = "";
   }
 
   onEvent(state, action) {
@@ -52,7 +69,7 @@ class Header extends Component {
         <div class="header__search-container">
           <button data-ref="leaveButton" class="${leaveClass}" onclick="header.leaveChannel(event)">Leave</button>
           <form onsubmit="header.onSearch(event)">
-            <input class="header__search" type="text" placeholder="Search" />
+            <input name="search" class="header__search" type="text" placeholder="Search" />
           </form>
           <span class="header__username">${this.getStoreState().app.user.username}</span>
           <a class="header__logout" href="/logout">Logout</a>

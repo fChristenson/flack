@@ -5,10 +5,12 @@ const app = express();
 const {
   messageService,
   replyService,
+  searchService,
   channelService
 } = require("./lib/services");
 const {
   messageRoutes,
+  searchRoutes,
   userRoutes,
   generalRoutes,
   channelRoutes
@@ -36,10 +38,12 @@ io.on("connection", async socket => {
 
   socket.on("update-message", async messageId => {
     const updatedMessage = await messageService.getMessageView(messageId);
+    await searchService.updateMessage(updatedMessage);
     socket.to(updatedMessage.channelId).emit("update-message", updatedMessage);
   });
 
   socket.on("delete-message", async message => {
+    await searchService.deleteMessage(message.id);
     socket.to(message.channelId).emit("delete-message", message.id);
   });
 
@@ -68,6 +72,7 @@ io.on("connection", async socket => {
       text
     );
 
+    await searchService.saveMessage(createdMessage);
     socket.emit("my-message", createdMessage);
     socket.to(channelId).send(createdMessage);
   });
@@ -104,7 +109,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "..", "dist")));
 
-app.use("/", [generalRoutes, messageRoutes, channelRoutes, userRoutes]);
+app.use("/", [
+  generalRoutes,
+  messageRoutes,
+  channelRoutes,
+  userRoutes,
+  searchRoutes
+]);
 
 app.use((req, res, next) => {
   res.status(404).end("404 not found");

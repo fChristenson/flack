@@ -8,6 +8,12 @@ class ChannelService {
     this.createChannel = this.createChannel.bind(this);
     this.joinChannel = this.joinChannel.bind(this);
     this.leaveChannel = this.leaveChannel.bind(this);
+    this.getChannelsUserIsIn = this.getChannelsUserIsIn.bind(this);
+  }
+
+  async getChannelsUserIsIn(userId) {
+    const channels = await this.Model.find({ usersInChannel: userId });
+    return channels.map(channel => channel.id);
   }
 
   async createChannel(userId, name, type, usersInChannel) {

@@ -2,6 +2,9 @@ const Component = require("../component");
 const { CloseActionbar } = require("./actionbarActions");
 const { OPEN_ACTIONBAR, CLOSE_ACTIONBAR } = require("./actionbarEvents");
 const { SCROLL_THREAD_TO_BOTTOM } = require("./components/thread/threadEvents");
+const {
+  SCROLL_SEARCH_RESULTS_TO_BOTTOM
+} = require("./components/searchResults/searchResultsEvents");
 const { SetSelectedMessageId } = require("./components/thread/threadActions");
 require("./components/thread");
 require("./components/file");
@@ -20,7 +23,9 @@ class Actionbar extends Component {
   }
 
   onEvent(state, action) {
-    if (action.type === SCROLL_THREAD_TO_BOTTOM) {
+    const includes = [SCROLL_SEARCH_RESULTS_TO_BOTTOM, SCROLL_THREAD_TO_BOTTOM];
+
+    if (includes.includes(action.type)) {
       this.refs.content.scrollTop = this.refs.content.scrollHeight;
     }
 
