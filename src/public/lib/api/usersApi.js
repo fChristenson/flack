@@ -1,4 +1,5 @@
 const Request = require("./Request");
+const handleNetworkError = require("../handleNetworkError/handleNetworkError");
 
 const isLoggedIn = async () => {
   const req = Request("GET");
@@ -6,7 +7,7 @@ const isLoggedIn = async () => {
   return res.json();
 };
 
-const getUsersInChat = async channelId => {
+const getUsersInChat = async () => {
   const req = Request("GET");
   const res = await fetch("/api/v1/users", req);
   return res.json();
@@ -22,7 +23,7 @@ const setUnreadMessages = async (channelId, unreadMessages) => {
 };
 
 module.exports = {
-  isLoggedIn,
-  setUnreadMessages,
-  getUsersInChat
+  isLoggedIn: handleNetworkError(isLoggedIn),
+  setUnreadMessages: handleNetworkError(setUnreadMessages),
+  getUsersInChat: handleNetworkError(getUsersInChat)
 };

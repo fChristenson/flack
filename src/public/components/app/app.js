@@ -17,6 +17,8 @@ const socket = socketIO();
 window.socket = socket;
 
 (async () => {
+  require("../snackbar");
+
   store.setReducer("app", appReducer, appInitState);
   store.setReducer("sidebar", sidebarReducer, sidebarInitState);
   store.setReducer("chat", chatReducer, chatInitState);

@@ -18,6 +18,20 @@ const Message = require("../chat/Message");
 const Reply = require("../actionbar/components/thread/Reply");
 const Channel = require("../sidebar/Channel");
 const { AddChannel } = require("../sidebar/sidebarActions");
+const { ShowError, HideSnackbar } = require("../snackbar/snackbarActions");
+
+window.socket.on("error", error => {
+  store.dispatch(ShowError(error.message));
+});
+
+window.socket.on("connect", () => {
+  store.dispatch(HideSnackbar());
+  window.socket.emit("init", store.state.app.user.id);
+});
+
+window.socket.on("disconnect", () => {
+  store.dispatch(ShowError("Server was disconnected"));
+});
 
 window.socket.on("started-typing", message => {
   const { user, channelId } = message;

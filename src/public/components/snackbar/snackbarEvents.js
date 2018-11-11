@@ -1,0 +1,7 @@
+const SHOW_ERROR = "SNACKBAR/SHOW_ERROR";
+const HIDE_SNACKBAR = "SNACKBAR/HIDE_SNACKBAR";
+
+module.exports = {
+  SHOW_ERROR,
+  HIDE_SNACKBAR
+};

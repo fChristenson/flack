@@ -1,0 +1,19 @@
+.snackbar {
+  position: fixed;
+  top: 0;
+  margin: 0 auto;
+  height: var(--snackbar-height);
+  background: var(--color-red);
+  width: 100%;
+  transition: transform 0.3s ease-in-out;
+  transform: translateY(calc(var(--snackbar-height) * -1));
+  padding: var(--margin-l) 0;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-white);
+}
+
+.snackbar--show {
+  transform: translateY(0px);
+}

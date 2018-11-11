@@ -1,4 +1,5 @@
 const Request = require("./Request");
+const handleNetworkError = require("../handleNetworkError/handleNetworkError");
 
 const createChannel = async (name, usersInChannel, type) => {
   const req = Request("POST", { name, usersInChannel, type });
@@ -43,11 +44,11 @@ const setLastVisitedChannel = async channelId => {
 };
 
 module.exports = {
-  leaveChannel,
-  joinChannel,
-  createChannel,
-  getAllChannels,
-  getChannel,
-  setLastVisitedChannel,
-  getChannels
+  leaveChannel: handleNetworkError(leaveChannel),
+  joinChannel: handleNetworkError(joinChannel),
+  createChannel: handleNetworkError(createChannel),
+  getAllChannels: handleNetworkError(getAllChannels),
+  getChannel: handleNetworkError(getChannel),
+  setLastVisitedChannel: handleNetworkError(setLastVisitedChannel),
+  getChannels: handleNetworkError(getChannels)
 };

@@ -33,4 +33,5 @@ body {
   --message-height: 0;
   --edit-message-height: 0;
   --thread-message-height: 0;
+  --snackbar-height: 43px;
 }

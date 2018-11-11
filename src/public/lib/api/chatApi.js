@@ -1,4 +1,5 @@
 const Request = require("./Request");
+const handleNetworkError = require("../handleNetworkError/handleNetworkError");
 
 const updateMessage = async (messageId, text) => {
   const req = Request("PUT", { text });
@@ -25,8 +26,8 @@ const getReplies = async messageId => {
 };
 
 module.exports = {
-  deleteMessage,
-  getReplies,
-  getMessages,
-  updateMessage
+  deleteMessage: handleNetworkError(deleteMessage),
+  getReplies: handleNetworkError(getReplies),
+  getMessages: handleNetworkError(getMessages),
+  updateMessage: handleNetworkError(updateMessage)
 };

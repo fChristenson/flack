@@ -1,4 +1,5 @@
 const Request = require("./Request");
+const handleNetworkError = require("../handleNetworkError/handleNetworkError");
 
 const getSearchResults = async query => {
   const req = Request("GET");
@@ -7,5 +8,5 @@ const getSearchResults = async query => {
 };
 
 module.exports = {
-  getSearchResults
+  getSearchResults: handleNetworkError(getSearchResults)
 };
